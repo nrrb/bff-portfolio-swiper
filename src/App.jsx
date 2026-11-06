@@ -1,6 +1,7 @@
 import React, { useReducer, useSyncExternalStore } from 'react';
 import Icon from './Icon.jsx';
 import Swiper from './Swiper.jsx';
+import AuthorCard from './AuthorCard.jsx';
 import { createInitialState, reactionReducer, appReactions } from './actions.js';
 import { apps, owner } from './data.js';
 import { views, currentView, subscribeToNavigation } from './navigation.js';
@@ -85,8 +86,8 @@ export function ContactDetails({ person }) {
   const hasContact = person.email || person.links.length;
   return hasContact ? (
     <ul className="contact-list">
-      {person.email && <li><span>Email</span><a href={`mailto:${person.email}`}>{person.email}</a></li>}
-      {person.links.map(link => <li key={link.url}><span>{link.label}</span><a href={link.url} target="_blank" rel="noreferrer">{link.label} ↗</a></li>)}
+      {person.email && <li><a href={`mailto:${person.email}`}>{person.email}</a></li>}
+      {person.links.map(link => <li key={link.url}><a href={link.url} target="_blank" rel="noreferrer">{link.label} ↗</a></li>)}
     </ul>
   ) : <p className="contact-placeholder">Contact details haven’t been added yet.</p>;
 }
@@ -139,12 +140,13 @@ export default function App() {
             </>
           )}
         </section>
-        <section id="view-profile" className="page-view" aria-labelledby="owner-name" hidden={view !== 'profile'}>
-          <p className="eyebrow">THE PERSON BEHIND THE APPS</p>
-          <div className="owner-avatar" aria-hidden="true"><Icon name="profile" /></div>
-          <h1 id="owner-name">{owner.name}</h1>
-          <p className="page-intro">Thanks for exploring my work. Let’s make something together.</p>
-          <h2>Get in touch</h2><ContactDetails person={owner} />
+        <section id="view-profile" className="page-view author-profile" aria-labelledby="owner-name" hidden={view !== 'profile'}>
+          <AuthorCard name={owner.name}>
+            <p className="eyebrow">THE PERSON BEHIND THE APPS</p>
+            <h1 id="owner-name">{owner.name}</h1>
+            <p className="page-intro">Thanks for exploring my work! Hire me and I'll help celebrate your apps too.</p>
+            <ContactDetails person={owner} />
+          </AuthorCard>
         </section>
       </div>
       <nav className="navigation" aria-label="Main navigation">

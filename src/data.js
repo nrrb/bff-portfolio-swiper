@@ -4,7 +4,7 @@ import { projectId } from './project-id.js';
 
 export const owner = {
   name: 'Nicholas Bennett',
-  email: 'nicholasbennett.work@gmail.com',
+  email: 'nicholas@nicholasbennett.work',
   links: [
     { label: 'GitHub', url: 'https://github.com/nrrb/' },
     { label: 'LinkedIn', url: 'https://www.linkedin.com/in/nicholasrrbennett/' },

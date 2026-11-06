@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { chromium, devices } from 'playwright';
 import { projectId } from '../src/project-id.js';
+import { owner } from '../src/data.js';
 
 const base = process.env.TEST_URL || 'http://127.0.0.1:4185/';
 const projects = JSON.parse(await readFile(new URL('../projects.json', import.meta.url), 'utf8'));
@@ -116,13 +117,14 @@ try {
   await page.locator('.conversation-row').click();
   await page.locator('#view-chats a[href="#profile"]').click();
   await page.locator('#view-profile').waitFor({ state: 'visible' });
-  assert.equal(await page.locator('#owner-name').innerText(), 'Nicholas Bennett');
-  assert.equal(await page.locator('a[href="mailto:nicholasbennett.work@gmail.com"]').count(), 1);
-  for (const url of ['https://github.com/nrrb/', 'https://www.linkedin.com/in/nicholasrrbennett/']) {
+  assert.equal(await page.locator('#owner-name').innerText(), owner.name);
+  assert.equal(await page.locator(`a[href="mailto:${owner.email}"]`).count(), 1);
+  for (const { url } of owner.links) {
     assert.equal(await page.locator(`a[href="${url}"]`).count(), 1);
     assert.equal(await page.locator(`#view-profile a[href="${url}"]`).count(), 1);
   }
   assert.ok(await page.locator('#view-profile').isVisible());
+  await page.waitForFunction(() => document.querySelector('.author-photo-track img')?.naturalWidth === 1320);
   await page.screenshot({ path: '/private/tmp/bff-profile.png' });
   await page.goBack();
   await page.waitForURL(`**/#chats/${projectId(projects[0])}`);

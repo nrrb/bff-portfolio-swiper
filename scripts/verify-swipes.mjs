@@ -38,6 +38,14 @@ async function noSwipeScrollbars(page) {
   assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth && document.documentElement.scrollHeight <= innerHeight));
 }
 
+async function photoAt(page, index) {
+  await page.waitForFunction(index => {
+    const track = document.querySelector('.author-photo-track');
+    return Math.abs(track.scrollLeft - index * track.clientWidth) < 1;
+  }, index);
+  assert.equal(await page.locator('.photo-counter').innerText(), `${index + 1} / 3`);
+}
+
 try {
   const desktop = await browser.newPage({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'no-preference' });
   await desktop.context().route(url => url.origin !== new URL(base).origin, route => route.fulfill({ contentType: 'text/html', body: '<title>Project destination</title>' }));
@@ -122,6 +130,24 @@ try {
   await desktop.getByRole('button', { name: 'Pass', exact: true }).press('Enter');
   assert.equal(await desktop.locator('.swipe-deck').getAttribute('data-phase'), 'exit');
   await settled(desktop, ids[1]);
+  await desktop.getByRole('link', { name: 'Profile', exact: true }).click();
+  await desktop.locator('.author-card').waitFor({ state: 'visible' });
+  const authorBounds = await desktop.locator('.author-card').boundingBox();
+  await startMouseDrag(desktop, -authorBounds.width * .8, '.author-photo-track');
+  await desktop.mouse.up();
+  await photoAt(desktop, 1);
+  assert.deepEqual(await desktop.locator('.author-card').boundingBox(), authorBounds);
+  await desktop.getByRole('button', { name: 'Next photo', exact: true }).click();
+  await photoAt(desktop, 2);
+  assert.ok(await desktop.getByRole('button', { name: 'Next photo', exact: true }).isDisabled());
+  await desktop.locator('.author-photo-track').focus();
+  await desktop.keyboard.press('ArrowLeft');
+  await photoAt(desktop, 1);
+  await desktop.getByRole('button', { name: 'Show photo 1 of 3', exact: true }).click();
+  await photoAt(desktop, 0);
+  assert.ok(await desktop.getByRole('button', { name: 'Previous photo', exact: true }).isDisabled());
+  await desktop.getByRole('link', { name: 'Home', exact: true }).click();
+  await settled(desktop, ids[1]);
 
   const device = devices['iPhone 16 Pro Max'];
   const context = await browser.newContext({ ...device, viewport: device.screen });
@@ -132,8 +158,8 @@ try {
   const cdp = await context.newCDPSession(mobile);
   async function touchDrag(dx, dy = 0, selector = '[data-front]') {
     const box = await mobile.locator(selector).boundingBox();
-    const x = box.x + box.width / 2;
-    const y = selector === '[data-front]' ? box.y + 100 : box.y + box.height / 2;
+    const x = box.x + box.width * (selector === '.author-photo-track' ? .8 : .5);
+    const y = selector === '.author-photo-track' ? box.y + 140 : selector === '[data-front]' ? box.y + 100 : box.y + box.height / 2;
     await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y, id: 1 }] });
     for (let step = 1; step <= 6; step++) {
       await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: x + dx * step / 6, y: y + dy * step / 6, id: 1 }] });
@@ -166,8 +192,26 @@ try {
   await mobile.locator('#view-chats').waitFor({ state: 'visible' });
   assert.equal(await mobile.locator('.conversation-row').count(), 1);
   assert.ok((await mobile.locator('.conversation-row').innerText()).includes(projects[0].name));
+  await mobile.getByRole('link', { name: 'Profile', exact: true }).click();
+  await mobile.locator('.author-card').waitFor({ state: 'visible' });
+  const mobileAuthorBounds = await mobile.locator('.author-card').boundingBox();
+  for (const index of [1, 2, 2]) {
+    await touchDrag(-mobileAuthorBounds.width * .65, 0, '.author-photo-track');
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+    await photoAt(mobile, index);
+  }
+  assert.deepEqual(await mobile.locator('.author-card').boundingBox(), mobileAuthorBounds);
+  assert.equal(new URL(mobile.url()).hash, '#profile');
+  assert.equal(await mobile.locator('.author-photo-track img').count(), 3);
+  assert.ok(await mobile.locator('.author-photo-track img').evaluateAll(images => images.every(image => image.naturalWidth === 1320 && image.naturalHeight === 1760)));
+  assert.ok(await mobile.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+  await mobile.getByRole('button', { name: 'Show photo 1 of 3', exact: true }).click();
+  await photoAt(mobile, 0);
+  await mobile.screenshot({ path: '/private/tmp/bff-author-profile.png' });
+  await mobile.getByRole('link', { name: 'Home', exact: true }).click();
+  await settled(mobile, ids[2]);
   assert.deepEqual(errors, []);
-  console.log('Passed: desktop and touch swipes, no scrollbars during horizontal/diagonal exits, independent list scrolling, text/image dragging, rotation and blurred preview, snap-back, cancellation, recycled passes, matches leaving the deck, empty/last-card states, undo, reduced motion, and mobile viewport.');
+  console.log('Passed: desktop/touch swipes, clipped exits, deck/match/undo edge cases, reduced motion, and profile photo dragging, snapping, keyboard/buttons, compressed image dimensions, fixed card boundaries, and unchanged app deck.');
 } finally {
   await browser.close();
 }

@@ -154,7 +154,7 @@ test('React renders five views, the five action controls, and correct navigation
   assert.match(html, /<span class="badge">99\+<\/span>/);
   assert.match(html, /These apps already swiped right on you/);
   assert.match(html, /Nicholas Bennett/);
-  assert.equal([...html.matchAll(/mailto:nicholasbennett.work@gmail.com/g)].length, 1);
+  assert.equal(html.split(`mailto:${owner.email}`).length - 1, 1);
 });
 
 test('matches become conversations and decided apps leave Likes You', () => {
@@ -196,11 +196,32 @@ test('sample threads belong to their matched app and keep contact information on
 
 test('contact details render working links and an honest empty state', () => {
   const html = renderToStaticMarkup(React.createElement(components.ContactDetails, { person: owner }));
-  assert.match(html, /href="mailto:nicholasbennett.work@gmail.com"/);
+  assert.ok(html.includes(`href="mailto:${owner.email}"`));
   for (const link of owner.links) assert.ok(html.includes(`href="${link.url}"`));
   const empty = renderToStaticMarkup(React.createElement(components.ContactDetails, { person: { email: '', links: [] } }));
   assert.match(empty, /haven’t been added/);
   assert.doesNotMatch(empty, /href=/);
+});
+
+test('personal profile uses three small WebP photos without swipe-away controls', async () => {
+  const html = renderToStaticMarkup(React.createElement(components.default));
+  const profile = html.match(/<section id="view-profile"[\s\S]*?<\/section>/)[0];
+  assert.match(profile, /class="author-card"/);
+  assert.match(profile, /aria-roledescription="carousel"/);
+  assert.match(profile, /aria-label="Previous photo"/);
+  assert.match(profile, /aria-label="Next photo"/);
+  assert.doesNotMatch(profile, /swipe-deck|front-card|aria-label="Like"|aria-label="Pass"/);
+  assert.ok(profile.includes(`mailto:${owner.email}`));
+  const images = [...profile.matchAll(/src="(\/author-photos\/[^\"]+\.webp)"/g)];
+  assert.equal(images.length, 3);
+  let bytes = 0;
+  for (const [, source] of images) {
+    const image = await readFile(new URL(`./public${source}`, import.meta.url));
+    assert.equal(image.toString('ascii', 0, 4), 'RIFF');
+    assert.equal(image.toString('ascii', 8, 12), 'WEBP');
+    bytes += image.length;
+  }
+  assert.ok(bytes < 500000, 'Profile photos should stay below 500 KB combined');
 });
 
 test('all supplied projects have stable IDs and verified screenshot files or an explicit fallback', async () => {
