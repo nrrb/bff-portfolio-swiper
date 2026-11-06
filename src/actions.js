@@ -1,5 +1,5 @@
 export const reactionLabels = { pass: 'PASS', superlike: 'SUPER LIKE', like: 'LIKE' };
-export const initialState = { history: [], currentAppId: null, status: 'Explore the apps · likes last until you reload' };
+export const initialState = { history: [], currentAppId: null, status: 'Everyone here already likes you. Make your move.' };
 
 export function reactionReducer(state, action) {
   if (action.type === 'select') return { ...state, currentAppId: action.appId };
@@ -17,7 +17,7 @@ export function reactionReducer(state, action) {
     ...state,
     history: [...state.history, { appId: action.appId, type: action.type }],
     currentAppId: action.nextAppId ?? action.appId,
-    status: `${reactionLabels[action.type]} · ${action.name}`,
+    status: `${action.type === 'pass' ? 'Passed' : 'It’s a match'} · ${action.name}`,
   };
 }
 

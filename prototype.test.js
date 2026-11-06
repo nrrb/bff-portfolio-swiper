@@ -23,6 +23,7 @@ test('reactions belong to individual apps and undo reopens the affected app', ()
   const liked = react(initialState, 'like', 'first', 'second');
   let state = react(liked, 'superlike', 'second', 'second');
   assert.equal(state.currentAppId, 'second');
+  assert.equal(state.status, 'It’s a match · second');
   assert.deepEqual(appReactions(state.history), { first: 'like', second: 'superlike' });
   assert.deepEqual(liked.history, [{ appId: 'first', type: 'like' }]);
   assert.deepEqual(initialState.history, []);
@@ -59,6 +60,9 @@ test('navigation resolves all five links and falls back to Home', () => {
   for (const view of views) assert.equal(viewFromHash(`#${view.id}`), view.id);
   assert.equal(viewFromHash(''), 'home');
   assert.equal(viewFromHash('#unknown'), 'home');
+  for (const app of apps) assert.equal(viewFromHash(`#chats/${app.id}`), `chats/${app.id}`);
+  assert.equal(viewFromHash('#browser/anything'), 'home');
+  assert.equal(viewFromHash('#chats/app/extra'), 'home');
 });
 
 test('navigation subscribes to browser history changes and cleans up', () => {
@@ -110,27 +114,48 @@ test('React renders five views, the five action controls, and correct navigation
   assert.ok(externalControls.find(control => control.includes('aria-label="Superlike"') && control.includes(`href="${apps[0].websiteUrl}"`)));
   assert.ok(externalControls.find(control => control.includes('aria-label="Share"') && control.includes(`href="${apps[0].githubUrl}"`)));
   assert.match(html, /aria-current="page"/);
-  assert.doesNotMatch(html, /<dialog|99\+/);
+  assert.doesNotMatch(html, /<dialog|id="view-contact"/);
+  assert.match(html, /<span class="badge">99\+<\/span>/);
+  assert.match(html, /These apps already swiped right on you/);
   assert.match(html, /Nicholas Bennett/);
-  assert.equal([...html.matchAll(/mailto:nicholasbennett.work@gmail.com/g)].length, 2);
+  assert.equal([...html.matchAll(/mailto:nicholasbennett.work@gmail.com/g)].length, 1);
 });
 
-test('saved list includes likes and superlikes once and excludes passed apps', () => {
+test('matches become conversations and decided apps leave Likes You', () => {
   let state = react(initialState, 'like', apps[0].id);
   state = react(state, 'superlike', apps[1].id);
   state = react(state, 'pass', apps[2].id);
   state = react(state, 'superlike', apps[0].id);
   const reactions = appReactions(state.history);
   const items = apps.filter(app => ['like', 'superlike'].includes(reactions[app.id]));
-  const html = renderToStaticMarkup(React.createElement(components.AppList, { items, reactions, onSelect() {} }));
-  assert.equal([...html.matchAll(/class="app-row"/g)].length, 2);
+  const html = renderToStaticMarkup(React.createElement(components.ConversationList, { items }));
+  assert.equal([...html.matchAll(/class="app-row conversation-row"/g)].length, 2);
   assert.ok(html.includes(apps[0].name.replaceAll('&', '&amp;')));
   assert.ok(html.includes(apps[1].name));
   assert.ok(!html.includes(apps[2].name));
-  assert.match(html, /Superliked/);
-  const empty = renderToStaticMarkup(React.createElement(components.AppList, { items: [], reactions: {}, onSelect() {} }));
-  assert.match(empty, /No likes yet/);
+  assert.ok(html.includes(`href="#chats/${apps[0].id}"`));
+  assert.ok(html.includes(`href="#chats/${apps[1].id}"`));
+  const admirers = apps.filter(app => !reactions[app.id]);
+  const likes = renderToStaticMarkup(React.createElement(components.AppList, { items: admirers, onSelect() {} }));
+  assert.equal([...likes.matchAll(/class="app-row"/g)].length, apps.length - 3);
+  for (const app of apps.slice(0, 3)) assert.ok(!likes.includes(`>${app.name.replaceAll('&', '&amp;')}<`));
+  const empty = renderToStaticMarkup(React.createElement(components.ConversationList, { items: [] }));
+  assert.match(empty, /Your next conversation starts with a like/);
   assert.match(empty, /href="#home"/);
+  const noAdmirers = renderToStaticMarkup(React.createElement(components.AppList, { items: [], onSelect() {} }));
+  assert.match(noAdmirers, /Check Chats for matches/);
+  assert.match(noAdmirers, /href="#chats"/);
+});
+
+test('sample threads belong to their matched app and keep contact information on Profile', () => {
+  const html = renderToStaticMarkup(React.createElement(components.ConversationThread, { app: apps[0] }));
+  assert.match(html, /Sample conversation/);
+  assert.ok(html.includes(apps[0].description.replaceAll('&', '&amp;')));
+  assert.equal([...html.matchAll(/class="message /g)].length, 3);
+  assert.match(html, /href="#chats"/);
+  assert.match(html, /href="#profile"/);
+  assert.ok(!html.includes(owner.email));
+  for (const link of owner.links) assert.ok(!html.includes(link.url));
 });
 
 test('contact details render working links and an honest empty state', () => {

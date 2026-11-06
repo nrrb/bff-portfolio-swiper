@@ -29,13 +29,21 @@ function AppArtwork({ app }) {
   );
 }
 
-export function AppList({ items, reactions, onSelect }) {
+function AppThumbnail({ app }) {
+  return (
+    <span className={`app-thumbnail ${app.theme}`} aria-hidden="true">
+      {app.image ? <img src={app.image} alt="" loading="lazy" /> : app.initials}
+    </span>
+  );
+}
+
+export function AppList({ items, onSelect }) {
   if (!items.length) {
     return (
       <div className="empty-state">
-        <Icon name="heart-outline" /><h2>No likes yet</h2>
-        <p>Like or superlike an app on Home and it will appear here.</p>
-        <a className="text-link" href="#home">Find your next favorite app →</a>
+        <Icon name="heart-outline" /><h2>You’ve met everyone here</h2>
+        <p>Check Chats for matches, or browse the apps for another look.</p>
+        <a className="text-link" href="#chats">See your conversations →</a>
       </div>
     );
   }
@@ -44,23 +52,56 @@ export function AppList({ items, reactions, onSelect }) {
       {items.map(app => (
         <li key={app.id}>
           <a className="app-row" href="#home" onClick={() => onSelect(app.id)}>
-            <span className={`app-thumbnail ${app.theme}`} aria-hidden="true">
-              {app.image ? <img src={app.image} alt="" loading="lazy" /> : app.initials}
-            </span>
+            <AppThumbnail app={app} />
             <span className="row-copy">
               <strong>{app.name}</strong><span>{app.category}{app.year && ` · ${app.year}`}</span>
-              {['like', 'superlike'].includes(reactions[app.id]) && (
-                <span className={`saved-reaction ${reactions[app.id]}`}>
-                  <Icon name={reactions[app.id] === 'superlike' ? 'star' : 'heart'} />
-                  {reactions[app.id] === 'superlike' ? 'Superliked' : 'Liked'}
-                </span>
-              )}
             </span>
             <span className="row-arrow" aria-hidden="true">›</span>
           </a>
         </li>
       ))}
     </ul>
+  );
+}
+
+export function ConversationList({ items }) {
+  if (!items.length) {
+    return (
+      <div className="empty-state">
+        <Icon name="chats" /><h2>Your next conversation starts with a like</h2>
+        <p>Like or superlike an app and the feeling is mutual.</p>
+        <a className="text-link" href="#home">Meet the apps →</a>
+      </div>
+    );
+  }
+  return (
+    <ul className="app-list conversation-list">
+      {items.map(app => (
+        <li key={app.id}>
+          <a className="app-row conversation-row" href={`#chats/${app.id}`}>
+            <AppThumbnail app={app} />
+            <span className="row-copy"><strong>{app.name}</strong><span className="conversation-preview">{app.description}</span></span>
+            <span className="row-arrow" aria-hidden="true">›</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+export function ConversationThread({ app }) {
+  return (
+    <>
+      <a className="text-link" href="#chats">← All conversations</a>
+      <header className="thread-header"><AppThumbnail app={app} /><div><h1>{app.name}</h1><p>It’s a match.</p></div></header>
+      <p className="thread-label">Sample conversation</p>
+      <div className="messages" aria-label={`Sample conversation with ${app.name}`}>
+        <p className="message incoming">{app.description}</p>
+        <p className="message outgoing">Okay, you’ve got my attention.</p>
+        <p className="message incoming">Good. So, are we making plans or just collecting matches?</p>
+      </div>
+      <a className="text-link" href="#profile">Talk to the human behind the apps →</a>
+    </>
   );
 }
 
@@ -75,12 +116,15 @@ export function ContactDetails({ person }) {
 }
 
 export default function App() {
-  const view = useSyncExternalStore(subscribeToNavigation, currentView, () => 'home');
+  const route = useSyncExternalStore(subscribeToNavigation, currentView, () => 'home');
+  const [view, threadId] = route.split('/');
   const [state, dispatch] = useReducer(reactionReducer, initialState);
   const currentIndex = Math.max(0, apps.findIndex(app => app.id === state.currentAppId));
   const app = apps[currentIndex];
   const reactions = appReactions(state.history);
-  const likedApps = apps.filter(item => ['like', 'superlike'].includes(reactions[item.id]));
+  const matchedApps = apps.filter(item => ['like', 'superlike'].includes(reactions[item.id]));
+  const admirers = apps.filter(item => !reactions[item.id]);
+  const conversation = matchedApps.find(item => item.id === threadId);
   const selectApp = appId => dispatch({ type: 'select', appId });
 
   function handleAction(action) {
@@ -98,7 +142,7 @@ export default function App() {
           <article className="card" aria-labelledby="app-name">
             <AppArtwork app={app} />
             <div className="profile-copy">
-              <span className="likes-you"><Icon name="compass" />{app.category}</span>
+              <span className="likes-you"><Icon name="heart" />{['like', 'superlike'].includes(reactions[app.id]) ? 'It’s a match' : 'Likes You'}</span>
               <h1 id="app-name">{app.name} {app.year && <span className="age">{app.year.slice(-2)}</span>}</h1>
               <p className="app-description">{app.description}</p>
             </div>
@@ -130,17 +174,22 @@ export default function App() {
         <section id="view-browser" className="page-view" aria-labelledby="browser-title" hidden={view !== 'browser'}>
           <p className="eyebrow">THE COLLECTION</p><h1 id="browser-title">All apps</h1>
           <p className="page-intro">A little browsing. A lot to discover.</p>
-          <AppList items={apps} reactions={reactions} onSelect={selectApp} />
+          <AppList items={apps} onSelect={selectApp} />
         </section>
         <section id="view-likes" className="page-view" aria-labelledby="likes-title" hidden={view !== 'likes'}>
-          <p className="eyebrow">GOOD TASTE</p><h1 id="likes-title">Your likes <span className="count">{likedApps.length}</span></h1>
-          <p className="page-intro">All the apps you liked or superliked.</p>
-          <AppList items={likedApps} reactions={reactions} onSelect={selectApp} />
+          <p className="eyebrow">YOU’VE GOT ADMIRERS</p><h1 id="likes-title">Likes You</h1>
+          <p className="page-intro">These apps already swiped right on you. Like one back and make it a match.</p>
+          <AppList items={admirers} onSelect={selectApp} />
         </section>
-        <section id="view-contact" className="page-view" aria-labelledby="contact-title" hidden={view !== 'contact'}>
-          <p className="eyebrow">SAY HELLO</p><h1 id="contact-title">Let’s talk</h1>
-          <p className="page-intro">Have a question or a project in mind? Here’s how to reach me.</p>
-          <ContactDetails person={owner} />
+        <section id="view-chats" className="page-view" aria-label="Chats" hidden={view !== 'chats'}>
+          {conversation ? <ConversationThread app={conversation} /> : (
+            <>
+              <p className="eyebrow">THE FEELING’S MUTUAL</p><h1>Chats <span className="count">{matchedApps.length}</span></h1>
+              <p className="page-intro">You liked them. They’re already into you.</p>
+              {threadId && <p className="page-intro">That conversation isn’t available. Match with an app to start chatting.</p>}
+              <ConversationList items={matchedApps} />
+            </>
+          )}
         </section>
         <section id="view-profile" className="page-view" aria-labelledby="owner-name" hidden={view !== 'profile'}>
           <p className="eyebrow">THE PERSON BEHIND THE APPS</p>
@@ -155,7 +204,7 @@ export default function App() {
           <a key={item.id} href={`#${item.id}`} className={`nav-button${item.id === view ? ' selected' : ''}`}
             aria-label={item.label} title={item.label} aria-current={item.id === view ? 'page' : undefined}>
             <Icon name={item.icon} />
-            {item.id === 'likes' && likedApps.length > 0 && <span className="badge">{likedApps.length}</span>}
+            {item.id === 'likes' && <span className="badge">99+</span>}
           </a>
         ))}
       </nav>

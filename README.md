@@ -1,6 +1,6 @@
 # BFF interface prototype
 
-A React app built with Vite, using a Tinder-inspired interface to browse portfolio apps. The five bottom links open Home, Browser, Likes, Contact, and Profile. Hash navigation supports direct links, browser Back, and browser Forward without an additional routing package.
+A React app built with Vite, using a Tinder-inspired interface to browse portfolio apps. The five bottom links open Home, Browser, Likes You, Chats, and Profile. Hash navigation supports direct links, browser Back, and browser Forward without an additional routing package.
 
 Use Node.js 20.19+ or 22.12+ (Node 21 is unsupported). In this directory:
 
@@ -27,7 +27,7 @@ Recommended library: [Phosphor](https://phosphoricons.com/). Its [official SVG c
 | Home | Fire | Fill / pink |
 | Browser | Compass | Regular / gray |
 | Likes | Heart | Regular / gray |
-| Contact | ChatCircle | Regular / gray |
+| Chats | ChatCircle | Regular / gray |
 | Profile | User | Regular / gray |
 
 The prototype uses original, reusable SVG symbols in `icons.svg`, with no icon package or CDN required. Both a flame and hamburger menu are included. Use a symbol like this, with the accessible label on the button:
@@ -42,11 +42,13 @@ The prototype uses original, reusable SVG symbols in `icons.svg`, with no icon p
 
 Project `description` fields are short, playful dating bios for the cards. Detailed project context remains in the existing `problem`, `role`, and related fields where provided.
 
-Home displays one app card at a time. Pass and like advance to the next app; undo reopens the app whose decision was undone. Superlike saves the app and opens its website in a new tab. Share opens the app’s GitHub repository in a new tab. These two controls keep the same card selected; Superlike is disabled when there is no public website URL. Browser lists every app, and selecting one opens its Home card. Likes lists each liked or superliked app once and labels superlikes separately. A later pass removes an app from Likes, and undo restores its previous reaction. The bottom badge shows the actual saved count.
+Home displays one app card at a time. Every app has already liked the visitor: Likes You lists undecided apps, and its navigation badge always displays `99+`, regardless of the number of projects or matches. Pass and like advance to the next app. A like creates a match, removes the app from Likes You, and adds its conversation to Chats. Superlike also creates a match while opening the app’s website in a new tab. Share opens its GitHub repository in a new tab. These two controls keep the same card selected; Superlike is disabled when there is no public website URL. Browser lists every app, and selecting one opens its Home card.
 
-The chat icon opens Contact; Profile displays Nicholas Bennett’s name and the same email, GitHub, and LinkedIn links. Project cards use the captured homepage images, and Browser and Likes use the same images as thumbnails. Dancefloor Bass Analyzer has no public website URL and displays a labeled fallback.
+Chats lists matched apps once each. Selecting a conversation opens a playful sample thread at `#chats/<app-id>`, using the app’s bio as its first message. These are sample conversations, with no live messaging or backend. Passing an app removes it from Likes You and removes any existing match; undo restores the previous placement. Repeated likes do not duplicate a conversation. Contact information appears exclusively on Profile, which contains Nicholas Bennett’s name, email, GitHub, and LinkedIn links.
 
-Reactions stay available while navigating between views and reset on reload. External project links open with `noopener noreferrer`.
+Project cards use the captured homepage images, and lists use the same images as thumbnails. Dancefloor Bass Analyzer has no public website URL and displays a labeled fallback.
+
+Reactions and matches stay available while navigating between views and reset on reload. A thread for an unavailable match returns to the Chats list with an explanation. External project links open with `noopener noreferrer`.
 
 ## Project screenshots
 
@@ -65,6 +67,6 @@ To refresh just one project, pass its slug or GitHub repository name: `npm run s
 
 Run `npm test` for app-specific reaction history and undo, navigation, external project links, contact links, React-rendered view/SVG checks, and screenshot file checks.
 
-With the dev server running, use `TEST_URL=http://127.0.0.1:5173 npm run test:e2e` (adjust the URL to the server’s printed address). This uses Playwright to check all five views, all project rows and years, like/superlike/pass/undo behavior, new-tab website/GitHub destinations, the missing-website state, contact and profile information, browser Back, direct links, responsive layout, and screenshot dimensions. External destinations are stubbed during this test. It also writes visual QA images under `/private/tmp/`.
+With the dev server running, use `TEST_URL=http://127.0.0.1:5173 npm run test:e2e` (adjust the URL to the server’s printed address). This uses Playwright to check all five views, the fixed `99+` badge, admirers moving to Chats, sample threads, duplicate matches and undo, profile-only contact information, all project rows and years, new-tab destinations, missing URLs, browser Back, thread links, responsive layout, and screenshot dimensions. External destinations are stubbed during this test. It also writes visual QA images under `/private/tmp/`.
 
 The production build, unit/render tests, and Playwright checks pass. Browser checks use Chromium mobile emulation; physical iPhone Safari has not been tested.
