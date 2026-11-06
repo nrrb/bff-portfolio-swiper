@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
 import { chromium, devices } from 'playwright';
-import { apps } from '../src/data.js';
+import { apps, copy } from '../src/data.js';
 import { views } from '../src/navigation.js';
 
 const base = process.env.TEST_URL || 'http://127.0.0.1:5173/';
@@ -28,26 +28,26 @@ try {
   };
   await page.goto(base);
   await capture('home');
-  await navigate('Browser');
+  await navigate(copy.navigation.browser);
   assert.equal(await page.locator('#view-browser .app-row').count(), apps.length);
   await capture('browser');
-  await navigate('Likes');
+  await navigate(copy.navigation.likes);
   await capture('likes');
-  await navigate('Chats');
+  await navigate(copy.navigation.chats);
   assert.equal(await page.locator('.conversation-row').count(), 0);
   await capture('chats-empty');
 
-  await navigate('Home');
-  await page.getByRole('button', { name: 'Like', exact: true }).click();
+  await navigate(copy.navigation.home);
+  await page.getByRole('button', { name: copy.actions.like, exact: true }).click();
   await page.waitForFunction(() => document.querySelector('.swipe-deck').dataset.phase === 'idle'
     && getComputedStyle(document.querySelector('.match-popup')).opacity === '1');
   assert.equal(await page.locator('.match-popup span').innerText(), apps[0].name);
   await capture('match');
   await page.locator('.match-popup').waitFor({ state: 'detached' });
-  await page.getByRole('button', { name: 'Like', exact: true }).click();
+  await page.getByRole('button', { name: copy.actions.like, exact: true }).click();
   await page.locator('.match-popup').waitFor({ state: 'detached' });
 
-  await navigate('Chats');
+  await navigate(copy.navigation.chats);
   assert.equal(await page.locator('.conversation-row').count(), 2);
   assert.equal(await page.locator('.badge').innerText(), String(apps.length - 2));
   assert.ok(await page.locator('.chat-dot').isVisible());
@@ -55,7 +55,7 @@ try {
   await page.locator('.conversation-row').first().click();
   await page.locator('.thread-header').waitFor({ state: 'visible' });
   await capture('chat-thread');
-  await navigate('Profile');
+  await navigate(copy.navigation.profile);
   await capture('profile');
   assert.deepEqual(errors, []);
   console.log(`Saved eight page screenshots to ${output.pathname}`);

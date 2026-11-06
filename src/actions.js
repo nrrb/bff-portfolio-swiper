@@ -1,7 +1,9 @@
-export const reactionLabels = { pass: 'PASS', superlike: 'SUPER LIKE', like: 'LIKE' };
+import { copy } from './data.js';
+
+export const reactionLabels = copy.reactions;
 
 export function createInitialState(appIds) {
-  return { queue: appIds, history: [], currentAppId: appIds[0] ?? null, status: 'Everyone here already likes you. Make your move.' };
+  return { queue: appIds, history: [], currentAppId: appIds[0] ?? null, status: copy.status.initial };
 }
 
 export function reactionReducer(state, action) {
@@ -19,7 +21,7 @@ export function reactionReducer(state, action) {
       history: state.history.slice(0, -1),
       queue: last ? last.queue : state.queue,
       currentAppId: last ? last.appId : state.currentAppId,
-      status: last ? `Undid ${last.type}` : 'Nothing to undo yet',
+      status: last ? copy.status.undid[last.type] : copy.status.nothingToUndo,
     };
   }
   if (!reactionLabels[action.type] || !action.appId) return state;
@@ -30,7 +32,7 @@ export function reactionReducer(state, action) {
     queue,
     history: [...state.history, { appId: action.appId, type: action.type, queue: state.queue }],
     currentAppId: queue[0] ?? null,
-    status: `${action.type === 'pass' ? 'Saved for later' : 'It’s a match'} · ${action.name}`,
+    status: `${action.type === 'pass' ? copy.status.passed : copy.status.matched} · ${action.name}`,
   };
 }
 

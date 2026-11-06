@@ -3,7 +3,7 @@ import Icon from './Icon.jsx';
 import Swiper from './Swiper.jsx';
 import AuthorCard from './AuthorCard.jsx';
 import { createInitialState, reactionReducer, appReactions } from './actions.js';
-import { apps, owner } from './data.js';
+import { apps, owner, site, copy } from './data.js';
 import { views, currentView, subscribeToNavigation } from './navigation.js';
 
 function AppThumbnail({ app }) {
@@ -18,9 +18,9 @@ export function AppList({ items, onSelect }) {
   if (!items.length) {
     return (
       <div className="empty-state">
-        <Icon name="heart-outline" /><h2>You’ve met everyone here</h2>
-        <p>Check Chats for matches, or browse the apps for another look.</p>
-        <a className="text-link" href="#chats">See your conversations →</a>
+        <Icon name="heart-outline" /><h2>{copy.emptyList.title}</h2>
+        <p>{copy.emptyList.body}</p>
+        <a className="text-link" href="#chats">{copy.emptyList.link}</a>
       </div>
     );
   }
@@ -45,9 +45,9 @@ export function ConversationList({ items }) {
   if (!items.length) {
     return (
       <div className="empty-state">
-        <Icon name="chats" /><h2>Your next conversation starts with a like</h2>
-        <p>Like or superlike an app and the feeling is mutual.</p>
-        <a className="text-link" href="#home">Meet the apps →</a>
+        <Icon name="chats" /><h2>{copy.emptyChats.title}</h2>
+        <p>{copy.emptyChats.body}</p>
+        <a className="text-link" href="#home">{copy.emptyChats.link}</a>
       </div>
     );
   }
@@ -69,15 +69,15 @@ export function ConversationList({ items }) {
 export function ConversationThread({ app }) {
   return (
     <>
-      <a className="text-link" href="#chats">← All conversations</a>
-      <header className="thread-header"><AppThumbnail app={app} /><div><h1>{app.name}</h1><p>It’s a match.</p></div></header>
-      <p className="thread-label">Sample conversation</p>
-      <div className="messages" aria-label={`Sample conversation with ${app.name}`}>
+      <a className="text-link" href="#chats">{copy.conversation.back}</a>
+      <header className="thread-header"><AppThumbnail app={app} /><div><h1>{app.name}</h1><p>{copy.conversation.match}</p></div></header>
+      <p className="thread-label">{copy.conversation.label}</p>
+      <div className="messages" aria-label={`${copy.conversation.ariaLabel} ${app.name}`}>
         <p className="message incoming">{app.description}</p>
-        <p className="message outgoing">Okay, you’ve got my attention.</p>
-        <p className="message incoming">Good. So, are we making plans or just collecting matches?</p>
+        <p className="message outgoing">{copy.conversation.reply}</p>
+        <p className="message incoming">{copy.conversation.followUp}</p>
       </div>
-      <a className="text-link" href="#profile">Talk to the human behind the apps →</a>
+      <a className="text-link" href="#profile">{copy.conversation.authorLink}</a>
     </>
   );
 }
@@ -89,7 +89,7 @@ export function ContactDetails({ person }) {
       {person.email && <li><a href={`mailto:${person.email}`}>{person.email}</a></li>}
       {person.links.map(link => <li key={link.url}><a href={link.url} target="_blank" rel="noreferrer">{link.label} ↗</a></li>)}
     </ul>
-  ) : <p className="contact-placeholder">Contact details haven’t been added yet.</p>;
+  ) : <p className="contact-placeholder">{copy.contactPlaceholder}</p>;
 }
 
 export default function App() {
@@ -117,41 +117,41 @@ export default function App() {
   }
 
   return (
-    <main className="phone" aria-label="App portfolio">
+    <main className="phone" aria-label={copy.portfolioLabel}>
       <header className="topbar">
-        <a className="wordmark" href="#home" aria-label="BFF home">bff<span>♥</span></a>
-        <span className="prototype">MEET YOUR NEXT FAVORITE APP</span>
+        <a className="wordmark" href="#home" aria-label={site.homeLabel}>{site.wordmark}<span>{site.wordmarkAccent}</span></a>
+        <span className="prototype">{site.tagline}</span>
       </header>
       <div className="view-content" key={view}>
-        <section id="view-home" className="swiper-view" aria-label="App swiper" hidden={view !== 'home'}>
+        <section id="view-home" className="swiper-view" aria-label={copy.swiperLabel} hidden={view !== 'home'}>
           <Swiper app={app} nextApp={nextApp} matched={['like', 'superlike'].includes(reactions[app?.id])}
             onReact={handleAction} onUndo={handleUndo} canUndo={state.history.length > 0} />
         </section>
         <section id="view-browser" className="page-view" aria-labelledby="browser-title" hidden={view !== 'browser'}>
-          <p className="eyebrow">THE COLLECTION</p><h1 id="browser-title">All apps</h1>
+          <p className="eyebrow">{copy.pages.browserEyebrow}</p><h1 id="browser-title">{copy.pages.browserTitle}</h1>
           <AppList items={apps} onSelect={selectApp} />
         </section>
         <section id="view-likes" className="page-view" aria-labelledby="likes-title" hidden={view !== 'likes'}>
-          <p className="eyebrow">YOU’VE GOT ADMIRERS</p><h1 id="likes-title">Likes You</h1>
+          <p className="eyebrow">{copy.pages.likesEyebrow}</p><h1 id="likes-title">{copy.pages.likesTitle}</h1>
           <AppList items={admirers} onSelect={selectApp} />
         </section>
-        <section id="view-chats" className="page-view" aria-label="Chats" hidden={view !== 'chats'}>
+        <section id="view-chats" className="page-view" aria-label={copy.pages.chatsTitle} hidden={view !== 'chats'}>
           {conversation ? <ConversationThread app={conversation} /> : (
             <>
-              <p className="eyebrow">THE FEELING’S MUTUAL</p><h1>Chats <span className="count">{matchedApps.length}</span></h1>
+              <p className="eyebrow">{copy.pages.chatsEyebrow}</p><h1>{copy.pages.chatsTitle} <span className="count">{matchedApps.length}</span></h1>
               <ConversationList items={matchedApps} />
             </>
           )}
         </section>
         <section id="view-profile" className="page-view author-profile" aria-labelledby="owner-name" hidden={view !== 'profile'}>
-          <AuthorCard name={owner.name}>
-            <span className="likes-you"><Icon name="heart" />THE AUTHOR</span>
+          <AuthorCard photo={owner.photo}>
+            <span className="likes-you"><Icon name="heart" />{copy.authorLabel}</span>
             <h1 id="owner-name">{owner.name}</h1>
             <div className="app-description"><ContactDetails person={owner} /></div>
           </AuthorCard>
         </section>
       </div>
-      <nav className="navigation" aria-label="Main navigation">
+      <nav className="navigation" aria-label={copy.navigationLabel}>
         {views.map(item => (
           <a key={item.id} href={`#${item.id}`} className={`nav-button${item.id === view ? ' selected' : ''}`}
             aria-label={item.label} title={item.label} aria-current={item.id === view ? 'page' : undefined}>
@@ -167,7 +167,7 @@ export default function App() {
           <div key={match.key} className="match-popup" onAnimationEnd={event => {
             if (event.animationName === 'match-pop-out') setMatch(null);
           }}>
-            <Icon name="heart" /><strong>You matched!</strong><span>{match.name}</span>
+            <Icon name="heart" /><strong>{copy.matchCelebration}</strong><span>{match.name}</span>
           </div>
         </div>
       )}

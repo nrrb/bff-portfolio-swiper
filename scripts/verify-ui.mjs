@@ -1,12 +1,10 @@
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
 import { chromium, devices } from 'playwright';
 import { projectId } from '../src/project-id.js';
-import { owner } from '../src/data.js';
+import { apps, owner, copy } from '../src/data.js';
 
 const base = process.env.TEST_URL || 'http://127.0.0.1:4185/';
-const projects = JSON.parse(await readFile(new URL('../projects.json', import.meta.url), 'utf8'));
-const manifest = JSON.parse(await readFile(new URL('../src/screenshots.json', import.meta.url), 'utf8'));
+const projects = apps;
 const browser = await chromium.launch({ channel: 'chromium' });
 try {
   const device = devices['iPhone 16 Pro Max'];
@@ -16,17 +14,17 @@ try {
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   await page.goto(base);
-  await page.getByRole('link', { name: 'Browser', exact: true }).click();
+  await page.getByRole('link', { name: copy.navigation.browser, exact: true }).click();
   assert.equal(await page.locator('#view-browser .app-row').count(), projects.length);
-  await page.getByRole('link', { name: 'Likes', exact: true }).click();
+  await page.getByRole('link', { name: copy.navigation.likes, exact: true }).click();
   assert.equal(await page.locator('#view-likes .app-row').count(), projects.length);
   assert.equal(await page.locator('.badge').innerText(), String(projects.length));
-  await page.getByRole('heading', { name: 'Likes You', exact: true }).waitFor({ state: 'visible' });
-  await page.getByRole('link', { name: 'Chats', exact: true }).click();
+  await page.getByRole('heading', { name: copy.pages.likesTitle, exact: true }).waitFor({ state: 'visible' });
+  await page.getByRole('link', { name: copy.navigation.chats, exact: true }).click();
   await page.locator('#view-chats').waitFor({ state: 'visible' });
   assert.equal(await page.locator('.conversation-row').count(), 0);
-  assert.equal(await page.locator('.nav-button[aria-label="Chats"] .chat-dot').count(), 0);
-  assert.match(await page.locator('#view-chats').innerText(), /Your next conversation starts with a like/);
+  assert.equal(await page.locator('.nav-button[href="#chats"] .chat-dot').count(), 0);
+  assert.ok((await page.locator('#view-chats').innerText()).includes(copy.emptyChats.title));
   const openExternalControl = async (label, url) => {
     const opened = context.waitForEvent('page');
     await page.getByRole('link', { name: label, exact: true }).click();
@@ -38,7 +36,7 @@ try {
     await page.waitForFunction(() => document.querySelector('.swipe-deck')?.dataset.phase === 'idle');
   };
   const openApp = async name => {
-    await page.getByRole('link', { name: 'Browser', exact: true }).click();
+    await page.getByRole('link', { name: copy.navigation.browser, exact: true }).click();
     await page.locator('#view-browser .app-row').filter({ hasText: name }).click();
     await page.waitForURL('**/#home');
     assert.ok((await page.locator('#app-name').innerText()).includes(name));
@@ -51,7 +49,7 @@ try {
       assert.equal(await website.getAttribute('target'), '_blank');
     } else {
       assert.ok(await website.isDisabled());
-      await openExternalControl('Share', project.githubUrl);
+      await openExternalControl(copy.actions.share, project.githubUrl);
       assert.ok((await page.locator('#app-name').innerText()).includes(name));
     }
     assert.equal(await page.locator('.actions .share').getAttribute('href'), project.githubUrl);
@@ -65,21 +63,21 @@ try {
   assert.deepEqual(await picture.evaluate(img => [img.naturalWidth, img.naturalHeight]), [1320, 2868]);
   await page.screenshot({ path: '/private/tmp/bff-home.png' });
   const checkCounts = async (matches, pending) => {
-    await page.getByRole('link', { name: 'Likes', exact: true }).click();
+    await page.getByRole('link', { name: copy.navigation.likes, exact: true }).click();
     await page.locator('#view-likes').waitFor({ state: 'visible' });
     assert.equal(await page.locator('#view-likes .app-row').count(), pending);
     assert.equal(await page.locator('.badge').innerText(), String(pending));
-    await page.getByRole('link', { name: 'Chats', exact: true }).click();
+    await page.getByRole('link', { name: copy.navigation.chats, exact: true }).click();
     await page.locator('#view-chats').waitFor({ state: 'visible' });
     assert.equal(await page.locator('.conversation-row').count(), matches);
-    assert.equal(await page.locator('.nav-button[aria-label="Chats"] .chat-dot').count(), matches > 0 ? 1 : 0);
+    assert.equal(await page.locator('.nav-button[href="#chats"] .chat-dot').count(), matches > 0 ? 1 : 0);
   };
-  await openExternalControl('Share', projects[0].githubUrl);
+  await openExternalControl(copy.actions.share, projects[0].githubUrl);
   assert.equal(await page.locator('.match-popup').count(), 0);
-  await page.getByRole('button', { name: 'Like', exact: true }).click();
+  await page.getByRole('button', { name: copy.actions.like, exact: true }).click();
   const popup = page.locator('.match-popup');
   await popup.waitFor({ state: 'visible' });
-  assert.equal(await popup.locator('strong').innerText(), 'You matched!');
+  assert.equal(await popup.locator('strong').innerText(), copy.matchCelebration);
   assert.equal(await popup.locator('span').innerText(), projects[0].name);
   assert.deepEqual(await popup.evaluate(box => box.getAnimations().map(animation => {
     const { duration, delay } = animation.effect.getTiming();
@@ -100,38 +98,38 @@ try {
   await page.screenshot({ path: '/private/tmp/bff-chat-thread.png' });
   await page.locator('#view-chats a[href="#chats"]').click();
   await openApp(projects[1].name);
-  await openExternalControl('Share', projects[1].githubUrl);
-  await openExternalControl('Superlike', projects[1].websiteUrl);
+  await openExternalControl(copy.actions.share, projects[1].githubUrl);
+  await openExternalControl(copy.actions.superlike, projects[1].websiteUrl);
   assert.equal(await popup.locator('span').innerText(), projects[1].name);
   assert.ok(!(await page.locator('#app-name').innerText()).includes(projects[1].name));
   await checkCounts(2, projects.length - 2);
   await page.screenshot({ path: '/private/tmp/bff-chats.png' });
-  await page.getByRole('link', { name: 'Likes', exact: true }).click();
+  await page.getByRole('link', { name: copy.navigation.likes, exact: true }).click();
   await page.screenshot({ path: '/private/tmp/bff-likes.png' });
   await openApp(projects[1].name);
-  await openExternalControl('Superlike', projects[1].websiteUrl);
+  await openExternalControl(copy.actions.superlike, projects[1].websiteUrl);
   await checkCounts(2, projects.length - 2);
   await openApp(projects[0].name);
-  await page.getByRole('button', { name: 'Pass', exact: true }).click();
+  await page.getByRole('button', { name: copy.actions.pass, exact: true }).click();
   assert.equal(await popup.count(), 0);
   await checkCounts(1, projects.length - 2);
-  await page.getByRole('link', { name: 'Home', exact: true }).click();
-  await page.getByRole('button', { name: 'Undo', exact: true }).click();
+  await page.getByRole('link', { name: copy.navigation.home, exact: true }).click();
+  await page.getByRole('button', { name: copy.actions.undo, exact: true }).click();
   assert.equal(await popup.count(), 0);
   assert.ok((await page.locator('#app-name').innerText()).includes(projects[0].name));
   await checkCounts(2, projects.length - 2);
-  await page.getByRole('link', { name: 'Home', exact: true }).click();
-  await page.getByRole('button', { name: 'Undo', exact: true }).click();
+  await page.getByRole('link', { name: copy.navigation.home, exact: true }).click();
+  await page.getByRole('button', { name: copy.actions.undo, exact: true }).click();
   await checkCounts(2, projects.length - 2);
-  await page.getByRole('link', { name: 'Home', exact: true }).click();
-  await page.getByRole('button', { name: 'Undo', exact: true }).click();
+  await page.getByRole('link', { name: copy.navigation.home, exact: true }).click();
+  await page.getByRole('button', { name: copy.actions.undo, exact: true }).click();
   await checkCounts(1, projects.length - 1);
-  await page.getByRole('link', { name: 'Home', exact: true }).click();
-  await page.getByRole('button', { name: 'Undo', exact: true }).click();
+  await page.getByRole('link', { name: copy.navigation.home, exact: true }).click();
+  await page.getByRole('button', { name: copy.actions.undo, exact: true }).click();
   await checkCounts(0, projects.length);
   await openApp(projects[0].name);
-  await page.getByRole('button', { name: 'Like', exact: true }).click();
-  await page.getByRole('link', { name: 'Chats', exact: true }).click();
+  await page.getByRole('button', { name: copy.actions.like, exact: true }).click();
+  await page.getByRole('link', { name: copy.navigation.chats, exact: true }).click();
   await page.locator('.conversation-row').click();
   await page.locator('#view-chats a[href="#profile"]').click();
   await page.locator('#view-profile').waitFor({ state: 'visible' });
@@ -142,7 +140,7 @@ try {
     assert.equal(await page.locator(`#view-profile a[href="${url}"]`).count(), 1);
   }
   assert.ok(await page.locator('#view-profile').isVisible());
-  await page.waitForFunction(() => document.querySelector('.author-photo')?.naturalWidth === 1320);
+  await page.waitForFunction(() => document.querySelector('.author-photo')?.complete && document.querySelector('.author-photo').naturalWidth > 0);
   await page.screenshot({ path: '/private/tmp/bff-profile.png' });
   await page.goBack();
   await page.waitForURL(`**/#chats/${projectId(projects[0])}`);
@@ -156,7 +154,7 @@ try {
   }
   await page.reload();
   assert.ok(await page.locator('#view-chats').isVisible());
-  assert.match(await page.locator('#view-chats').innerText(), /Your next conversation starts with a like/);
+  assert.ok((await page.locator('#view-chats').innerText()).includes(copy.emptyChats.title));
   assert.equal(await page.locator('.message').count(), 0);
   assert.deepEqual(errors, []);
   console.log('Passed: five views, match popup timing and cleanup, live Likes You count, chat dot, matching, conversations, sample threads, undo, profile-only contacts, external links, years, navigation, and responsive layout.');
@@ -168,17 +166,17 @@ try {
     const style = document.createElement('style');
     style.textContent = 'body{margin:0;padding:15px;display:grid;grid-template-columns:repeat(7,1fr);gap:12px;background:#171c24;color:white;font:12px Arial}figure{margin:0;min-width:0}img{width:100%;height:440px;object-fit:contain;background:#080b0e}figcaption{height:32px;padding:8px 0}';
     document.head.append(style);
-    for (const [id, capture] of Object.entries(captures)) {
-      if (capture.status !== 'captured') continue;
+    for (const { id, image, capture } of captures) {
+      if (capture?.status !== 'captured') continue;
       const figure = document.createElement('figure');
       const img = document.createElement('img');
-      img.src = new URL(capture.file, base).href;
+      img.src = new URL(image, base).href;
       const caption = document.createElement('figcaption');
       caption.textContent = id;
       figure.append(img, caption);
       document.body.append(figure);
     }
-  }, { captures: manifest, base });
+  }, { captures: projects, base });
   await gallery.waitForFunction(() => [...document.images].every(img => img.complete && img.naturalWidth === 1320 && img.naturalHeight === 2868));
   await gallery.screenshot({ path: '/private/tmp/bff-project-contact-sheet.png', fullPage: true });
   console.log('All captured images loaded at 1320×2868; contact sheet: /private/tmp/bff-project-contact-sheet.png');

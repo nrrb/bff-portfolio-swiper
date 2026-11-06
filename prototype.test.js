@@ -5,14 +5,14 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { createServer } from 'vite';
 import { createInitialState, reactionReducer, appReactions } from './src/actions.js';
-import { apps, owner } from './src/data.js';
+import { apps, owner, site, copy } from './src/data.js';
 import { views, viewFromHash, currentView, subscribeToNavigation } from './src/navigation.js';
 import { projectId } from './src/project-id.js';
 
 let server;
 let components;
 before(async () => {
-  server = await createServer({ server: { middlewareMode: true, hmr: false, watch: null } });
+  server = await createServer({ server: { middlewareMode: true, hmr: false, ws: false, watch: null } });
   components = await server.ssrLoadModule('/src/App.jsx');
 });
 after(async () => { await server?.close(); });
@@ -20,15 +20,18 @@ after(async () => { await server?.close(); });
 const initialState = createInitialState(apps.map(app => app.id));
 const react = (state, type, appId) => reactionReducer(state, { type, appId, name: appId });
 
-test('social preview uses the branded title and a 1200 by 630 PNG', async () => {
-  const html = await readFile(new URL('./index.html', import.meta.url), 'utf8');
-  assert.ok(html.includes('<title>bff ❤️</title>'));
-  assert.ok(html.includes('<meta property="og:title" content="bff ❤️">'));
-  assert.ok(html.includes('<meta property="og:image" content="https://bigfriendlyfunction.com/social-preview.png">'));
+test('HTML metadata comes from the content file before client JavaScript runs', async () => {
+  const template = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  const html = await server.transformIndexHtml('/', template);
+  assert.ok(html.includes(`<title>${site.title}</title>`));
+  assert.ok(html.includes(`<meta property="og:title" content="${site.title}">`));
+  assert.ok(html.includes(`<meta name="description" content="${site.description}">`));
+  assert.ok(html.includes(`<link rel="canonical" href="${site.url}">`));
+  assert.ok(html.includes(`<meta property="og:image" content="${site.image}">`));
+  assert.ok(html.includes(`<meta property="og:image:alt" content="${site.imageAlt}">`));
   assert.ok(html.includes('<meta name="twitter:card" content="summary_large_image">'));
-  const image = await readFile(new URL('./public/social-preview.png', import.meta.url));
-  assert.deepEqual([...image.subarray(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
-  assert.deepEqual([image.readUInt32BE(16), image.readUInt32BE(20)], [1200, 630]);
+  assert.doesNotMatch(html, /%CONTENT_/);
+  await assert.rejects(server.transformIndexHtml('/', '%CONTENT_missingKey%'), /Missing site content/);
 });
 
 test('passing moves an app to the bottom until every other queued app has appeared', () => {
@@ -54,7 +57,7 @@ test('likes and superlikes leave the deck, create matches, and allow an empty de
   assert.deepEqual(state.queue, []);
   assert.equal(state.currentAppId, null);
   assert.deepEqual(appReactions(state.history), { first: 'like', second: 'superlike' });
-  assert.equal(state.status, 'It’s a match · second');
+  assert.equal(state.status, `${copy.status.matched} · second`);
   state = reactionReducer(state, { type: 'undo' });
   assert.deepEqual(state.queue, ['second']);
   assert.equal(state.currentAppId, 'second');
@@ -68,13 +71,14 @@ test('undo restores the exact deck order and previous match state', () => {
   assert.deepEqual(state.queue, passed.queue);
   assert.equal(state.currentAppId, 'second');
   assert.deepEqual(appReactions(state.history), { first: 'pass' });
+  assert.equal(state.status, copy.status.undid.like);
   state = reactionReducer(state, { type: 'undo' });
   assert.deepEqual(state.queue, initial.queue);
   assert.equal(state.currentAppId, 'first');
   assert.deepEqual(appReactions(state.history), {});
   assert.deepEqual(passed.queue, ['second', 'third', 'first']);
   state = reactionReducer(state, { type: 'undo' });
-  assert.equal(state.status, 'Nothing to undo yet');
+  assert.equal(state.status, copy.status.nothingToUndo);
   assert.deepEqual(state.queue, initial.queue);
 });
 
@@ -143,30 +147,30 @@ test('React renders five views, the five action controls, and correct navigation
     const id = href.split('#')[1];
     assert.ok(id && svg.includes(`id="${id}"`), href);
   }
-  for (const label of ['Undo', 'Pass', 'Superlike', 'Like', 'Share']) assert.ok(html.includes(`aria-label="${label}"`));
+  for (const label of ['undo', 'pass', 'superlike', 'like', 'share'].map(action => copy.actions[action])) assert.ok(html.includes(`aria-label="${label}"`));
   for (const view of views) assert.match(html, new RegExp(`href="#${view.id}"[^>]*aria-label="${view.label}"`));
   const sections = [...html.matchAll(/<section[^>]*>/g)].map(match => match[0]);
   assert.equal(sections.length, 5);
   assert.equal(sections.filter(section => !section.includes('hidden')).length, 1);
   assert.ok(sections.find(section => section.includes('view-home') && !section.includes('hidden')));
   const home = html.match(/<section id="view-home"[\s\S]*?<\/section>/)[0];
-  const copy = home.match(/<div class="profile-copy">[\s\S]*?<\/div>/)[0];
-  assert.doesNotMatch(copy, /<a\b/, 'App text should not contain Visit project or Source links');
+  const profileCopy = home.match(/<div class="profile-copy">[\s\S]*?<\/div>/)[0];
+  assert.doesNotMatch(profileCopy, /<a\b/, 'App text should not contain Visit project or Source links');
   const externalControls = [...home.matchAll(/<a\b[^>]*>/g)].map(match => match[0]);
   assert.equal(externalControls.length, 2);
   for (const control of externalControls) {
     assert.match(control, /target="_blank"/);
     assert.match(control, /rel="noopener noreferrer"/);
   }
-  assert.ok(externalControls.find(control => control.includes('aria-label="Superlike"') && control.includes(`href="${apps[0].websiteUrl}"`)));
-  assert.ok(externalControls.find(control => control.includes('aria-label="Share"') && control.includes(`href="${apps[0].githubUrl}"`)));
+  assert.ok(externalControls.find(control => control.includes(`aria-label="${copy.actions.superlike}"`) && control.includes(`href="${apps[0].websiteUrl}"`)));
+  assert.ok(externalControls.find(control => control.includes(`aria-label="${copy.actions.share}"`) && control.includes(`href="${apps[0].githubUrl}"`)));
   assert.match(html, /aria-current="page"/);
   assert.doesNotMatch(html, /<dialog|id="view-contact"/);
   assert.doesNotMatch(html, /<p class="status"/);
   assert.ok(html.includes('<span class="sr-only" role="status">'));
   assert.ok(html.includes(`<span class="badge">${apps.length}</span>`));
   assert.doesNotMatch(html, /class="page-intro"/);
-  assert.match(html, /Nicholas Bennett/);
+  assert.ok(html.includes(owner.name.replaceAll('&', '&amp;')));
   assert.equal(html.split(`mailto:${owner.email}`).length - 1, 1);
 });
 
@@ -189,16 +193,16 @@ test('matches become conversations and decided apps leave Likes You', () => {
   assert.equal([...likes.matchAll(/class="app-row"/g)].length, apps.length - 3);
   for (const app of apps.slice(0, 3)) assert.ok(!likes.includes(`>${app.name.replaceAll('&', '&amp;')}<`));
   const empty = renderToStaticMarkup(React.createElement(components.ConversationList, { items: [] }));
-  assert.match(empty, /Your next conversation starts with a like/);
+  assert.ok(empty.includes(copy.emptyChats.title));
   assert.match(empty, /href="#home"/);
   const noAdmirers = renderToStaticMarkup(React.createElement(components.AppList, { items: [], onSelect() {} }));
-  assert.match(noAdmirers, /Check Chats for matches/);
+  assert.ok(noAdmirers.includes(copy.emptyList.body));
   assert.match(noAdmirers, /href="#chats"/);
 });
 
 test('sample threads belong to their matched app and keep contact information on Profile', () => {
   const html = renderToStaticMarkup(React.createElement(components.ConversationThread, { app: apps[0] }));
-  assert.match(html, /Sample conversation/);
+  assert.ok(html.includes(copy.conversation.label));
   assert.ok(html.includes(apps[0].description.replaceAll('&', '&amp;')));
   assert.equal([...html.matchAll(/class="message /g)].length, 3);
   assert.match(html, /href="#chats"/);
@@ -212,56 +216,92 @@ test('contact details render working links and an honest empty state', () => {
   assert.ok(html.includes(`href="mailto:${owner.email}"`));
   for (const link of owner.links) assert.ok(html.includes(`href="${link.url}"`));
   const empty = renderToStaticMarkup(React.createElement(components.ContactDetails, { person: { email: '', links: [] } }));
-  assert.match(empty, /haven’t been added/);
+  assert.ok(empty.includes(copy.contactPlaceholder));
   assert.doesNotMatch(empty, /href=/);
 });
 
-test('personal profile uses only the park photo with author pill and bio links', async () => {
+test('personal profile uses the configured photo, author pill, and contact links', async () => {
   const html = renderToStaticMarkup(React.createElement(components.default));
   const profile = html.match(/<section id="view-profile"[\s\S]*?<\/section>/)[0];
   assert.match(profile, /class="author-card card"/);
   assert.match(profile, /class="profile-copy author-copy"/);
-  assert.match(profile, /class="likes-you">[\s\S]*?THE AUTHOR<\/span>/);
+  assert.ok(profile.includes(`${copy.authorLabel}</span>`));
   assert.doesNotMatch(profile, /carousel|photo-arrow|photo-counter|swipe-deck|front-card|aria-label="Like"|aria-label="Pass"/);
   const bio = profile.match(/<div class="app-description">[\s\S]*?<\/div>/)[0];
   assert.ok(bio.includes(`mailto:${owner.email}`));
   for (const { url } of owner.links) assert.ok(bio.includes(`href="${url}"`));
-  const images = [...profile.matchAll(/src="(\/author-photos\/[^\"]+\.webp)"/g)];
-  assert.equal(images.length, 1);
-  assert.equal(images[0][1], '/author-photos/smiling_sun_beard_park.webp');
-  let bytes = 0;
-  for (const [, source] of images) {
-    const image = await readFile(new URL(`./public${source}`, import.meta.url));
-    assert.equal(image.toString('ascii', 0, 4), 'RIFF');
-    assert.equal(image.toString('ascii', 8, 12), 'WEBP');
-    bytes += image.length;
+  assert.equal([...profile.matchAll(/<img\b/g)].length, 1);
+  assert.ok(profile.includes(`src="${owner.photo.src}"`));
+  assert.ok(profile.includes(`alt="${owner.photo.alt}"`));
+  assert.ok(profile.includes(`width="${owner.photo.width}" height="${owner.photo.height}"`));
+  if (owner.photo.src.startsWith('/')) {
+    const image = await readFile(new URL(`./public${owner.photo.src}`, import.meta.url));
+    assert.ok(image.length > 0);
   }
-  assert.ok(bytes < 250000, 'Profile photo should stay below 250 KB');
 });
 
 test('all supplied projects have stable IDs and verified screenshot files or an explicit fallback', async () => {
-  const source = JSON.parse(await readFile(new URL('./projects.json', import.meta.url), 'utf8'));
-  const manifest = JSON.parse(await readFile(new URL('./src/screenshots.json', import.meta.url), 'utf8'));
+  const { projects: source } = JSON.parse(await readFile(new URL('./content.json', import.meta.url), 'utf8'));
   assert.equal(apps.length, source.length);
   assert.equal(new Set(apps.map(app => app.id)).size, apps.length);
   for (const project of source) {
     const id = projectId(project);
     const app = apps.find(item => item.id === id);
     assert.equal(app.description, project.description);
-    assert.match(project.firstCommitDate, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/, `${project.name} needs a creation date`);
-    assert.ok(Number.isFinite(Date.parse(project.firstCommitDate)), project.name);
-    assert.equal(app.year, project.firstCommitDate.slice(0, 4));
-    const capture = manifest[id];
-    assert.ok(capture, id);
-    if (capture.status === 'captured') {
-      assert.deepEqual([capture.width, capture.height], [1320, 2868]);
-      const image = await readFile(new URL(`./public/${capture.file}`, import.meta.url));
-      assert.ok(image.length > 1000, id);
-      assert.equal(app.image, `/${capture.file}`);
+    if (project.firstCommitDate) {
+      assert.ok(Number.isFinite(Date.parse(project.firstCommitDate)), project.name);
+      assert.equal(app.year, project.firstCommitDate.slice(0, 4));
     } else {
-      assert.ok(['failed', 'unavailable'].includes(capture.status));
-      assert.ok(capture.reason);
-      assert.equal(app.image, null);
+      assert.equal(app.year, null);
     }
+    assert.equal(app.image, project.image);
+    if (project.image?.startsWith('/')) {
+      const image = await readFile(new URL(`./public${project.image}`, import.meta.url));
+      assert.ok(image.length > 0, id);
+    }
+    if (project.capture?.status === 'captured') {
+      assert.deepEqual([project.capture.width, project.capture.height], [1320, 2868]);
+    }
+  }
+});
+
+test('a different owner and sparse dataset render using only content changes', async () => {
+  const content = JSON.parse(await readFile(new URL('./content.json', import.meta.url), 'utf8'));
+  content.site.wordmark = 'new brand';
+  content.site.tagline = 'Explore my collection';
+  content.owner = {
+    name: 'Alex Example', email: 'alex@example.com', links: [],
+    photo: { src: '/custom-avatar.jpg', alt: 'Alex at work', width: 800, height: 900 },
+  };
+  content.copy.authorLabel = 'THE CREATOR';
+  content.projects = [{ slug: 'custom-item', name: 'Custom item', description: 'My own dataset.', image: 'https://example.com/preview.jpg' }];
+  const custom = await createServer({
+    plugins: [{
+      name: 'custom-content-fixture', enforce: 'pre',
+      load(id) {
+        if (id === new URL('./content.json', import.meta.url).pathname) return JSON.stringify(content);
+      },
+    }],
+    server: { middlewareMode: true, hmr: false, ws: false, watch: null },
+  });
+  try {
+    const { default: App } = await custom.ssrLoadModule('/src/App.jsx');
+    const { apps: customApps } = await custom.ssrLoadModule('/src/data.js');
+    const html = renderToStaticMarkup(React.createElement(App));
+    for (const value of ['new brand', 'Explore my collection', 'Alex Example', 'alex@example.com',
+      '/custom-avatar.jpg', 'Alex at work', 'THE CREATOR', 'Custom item', 'My own dataset.', 'https://example.com/preview.jpg']) {
+      assert.ok(html.includes(value), value);
+    }
+    assert.ok(!html.includes(owner.name));
+    assert.ok(!html.includes(owner.photo.src));
+    assert.equal(customApps.length, 1);
+    assert.equal(customApps[0].id, 'custom-item');
+    assert.equal(customApps[0].year, null);
+    content.projects = [];
+    custom.moduleGraph.invalidateAll();
+    const { default: EmptyApp } = await custom.ssrLoadModule('/src/App.jsx');
+    assert.ok(renderToStaticMarkup(React.createElement(EmptyApp)).includes(copy.emptyDeck.title));
+  } finally {
+    await custom.close();
   }
 });

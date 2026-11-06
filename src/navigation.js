@@ -1,9 +1,11 @@
+import { copy } from './data.js';
+
 export const views = [
-  { id: 'home', label: 'Home', icon: 'flame' },
-  { id: 'browser', label: 'Browser', icon: 'compass' },
-  { id: 'likes', label: 'Likes', icon: 'heart-outline' },
-  { id: 'chats', label: 'Chats', icon: 'chats' },
-  { id: 'profile', label: 'Profile', icon: 'profile' },
+  { id: 'home', label: copy.navigation.home, icon: 'flame' },
+  { id: 'browser', label: copy.navigation.browser, icon: 'compass' },
+  { id: 'likes', label: copy.navigation.likes, icon: 'heart-outline' },
+  { id: 'chats', label: copy.navigation.chats, icon: 'chats' },
+  { id: 'profile', label: copy.navigation.profile, icon: 'profile' },
 ];
 
 export function viewFromHash(hash) {

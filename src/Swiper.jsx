@@ -1,12 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Icon from './Icon.jsx';
+import { copy } from './data.js';
 
 const actions = [
-  { action: 'undo', label: 'Undo', icon: 'undo' },
-  { action: 'pass', label: 'Pass', icon: 'pass', large: true },
-  { action: 'superlike', label: 'Superlike', icon: 'star' },
-  { action: 'like', label: 'Like', icon: 'heart', large: true },
-  { action: 'share', label: 'Share', icon: 'share' },
+  { action: 'undo', label: copy.actions.undo, icon: 'undo' },
+  { action: 'pass', label: copy.actions.pass, icon: 'pass', large: true },
+  { action: 'superlike', label: copy.actions.superlike, icon: 'star' },
+  { action: 'like', label: copy.actions.like, icon: 'heart', large: true },
+  { action: 'share', label: copy.actions.share, icon: 'share' },
 ];
 
 const resting = { x: 0, y: 0, phase: 'idle', outgoing: null, cycle: 0 };
@@ -15,14 +16,14 @@ function CardContent({ app, front, matched }) {
   return (
     <>
       {app.image ? (
-        <div className="app-artwork screenshot-artwork"><img src={app.image} alt={`${app.name} homepage on an iPhone 16 Pro Max display`} draggable={false} /></div>
+        <div className="app-artwork screenshot-artwork"><img src={app.image} alt={`${app.name} ${copy.card.imageAlt}`} draggable={false} /></div>
       ) : (
-        <div className={`app-artwork ${app.theme}`} aria-label={`${app.name} placeholder preview`}>
+        <div className={`app-artwork ${app.theme}`} aria-label={`${app.name} ${copy.card.placeholderAlt}`}>
           <span className="preview-label">{app.previewLabel}</span><span className="app-monogram">{app.initials}</span><span className="preview-caption">{app.category}</span>
         </div>
       )}
       <div className="profile-copy">
-        <span className="likes-you"><Icon name="heart" />{matched ? 'It’s a match' : 'Likes You'}</span>
+        <span className="likes-you"><Icon name="heart" />{matched ? copy.card.matched : copy.card.likesYou}</span>
         <h1 id={front ? 'app-name' : undefined}>{app.name} {app.year && <span className="age">’{app.year.slice(-2)}</span>}</h1>
         <p className="app-description">{app.description}</p>
       </div>
@@ -114,25 +115,25 @@ export default function Swiper({ app, nextApp, matched, onReact, onUndo, canUndo
             onTransitionEnd={event => { if (event.target === event.currentTarget && event.propertyName === 'transform' && busy) finishExit(); }}>
             <CardContent app={shown} front matched={motion.outgoing?.matched ?? matched} />
             <span className={`swipe-stamp ${motion.x > 0 ? 'stamp-like' : 'stamp-pass'}`} aria-hidden="true"
-              style={{ opacity: Math.min(Math.abs(motion.x) / 90, 1) }}>{motion.x > 0 ? 'LIKE' : 'NOPE'}</span>
+              style={{ opacity: Math.min(Math.abs(motion.x) / 90, 1) }}>{motion.x > 0 ? copy.card.likeStamp : copy.card.passStamp}</span>
           </article>
         ) : (
-          <div className="deck-empty empty-state"><Icon name="heart" /><h2>You’ve met your matches</h2>
-            <p>Your conversations are waiting in Chats.</p><a className="text-link" href="#chats">Go say hello →</a></div>
+          <div className="deck-empty empty-state"><Icon name="heart" /><h2>{copy.emptyDeck.title}</h2>
+            <p>{copy.emptyDeck.body}</p><a className="text-link" href="#chats">{copy.emptyDeck.link}</a></div>
         )}
       </div>
-      <div className="actions" role="group" aria-label="App actions">
+      <div className="actions" role="group" aria-label={copy.actions.groupLabel}>
         {actions.map(({ action, label, icon, large }) => {
           const href = action === 'superlike' ? shown?.websiteUrl : action === 'share' ? shown?.githubUrl : null;
           const className = `action ${action}${large ? ' large' : ''}`;
           if (href) {
-            const description = `Opens the project’s ${action === 'superlike' ? 'website' : 'GitHub repository'} in a new tab`;
+            const description = action === 'superlike' ? copy.actions.openWebsite : copy.actions.openSource;
             return <a key={action} className={className} href={href} target="_blank" rel="noopener noreferrer"
               aria-label={label} aria-description={description} title={description} aria-disabled={busy || undefined} tabIndex={busy ? -1 : undefined}
               onClick={event => { if (busy) event.preventDefault(); else if (action === 'superlike') decide(action); }}><Icon name={icon} /></a>;
           }
           return <button key={action} className={className} aria-label={label}
-            title={action === 'superlike' ? 'No public website available' : label}
+            title={action === 'superlike' ? copy.actions.noWebsite : label}
             disabled={busy || (action === 'undo' ? !canUndo : !shown || action === 'superlike' || action === 'share')}
             onClick={() => action === 'undo' ? onUndo() : decide(action)}><Icon name={icon} /></button>;
         })}
