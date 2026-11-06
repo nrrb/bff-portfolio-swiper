@@ -20,7 +20,7 @@ try {
   assert.equal(await page.locator('#view-browser .app-row').count(), projects.length);
   await page.getByRole('link', { name: 'Likes', exact: true }).click();
   assert.equal(await page.locator('#view-likes .app-row').count(), projects.length);
-  assert.equal(await page.locator('.badge').innerText(), '99+');
+  assert.equal(await page.locator('.badge').innerText(), String(projects.length));
   await page.getByRole('heading', { name: 'Likes You', exact: true }).waitFor({ state: 'visible' });
   await page.getByRole('link', { name: 'Chats', exact: true }).click();
   await page.locator('#view-chats').waitFor({ state: 'visible' });
@@ -68,7 +68,7 @@ try {
     await page.getByRole('link', { name: 'Likes', exact: true }).click();
     await page.locator('#view-likes').waitFor({ state: 'visible' });
     assert.equal(await page.locator('#view-likes .app-row').count(), pending);
-    assert.equal(await page.locator('.badge').innerText(), '99+');
+    assert.equal(await page.locator('.badge').innerText(), String(pending));
     await page.getByRole('link', { name: 'Chats', exact: true }).click();
     await page.locator('#view-chats').waitFor({ state: 'visible' });
     assert.equal(await page.locator('.conversation-row').count(), matches);
@@ -136,14 +136,14 @@ try {
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
     const nav = await page.locator('.navigation').boundingBox();
     assert.ok(nav.y >= 0 && nav.y + nav.height <= viewport.height);
-    assert.equal(await page.locator('.badge').innerText(), '99+');
+    assert.equal(await page.locator('.badge').innerText(), String(projects.length - 1));
   }
   await page.reload();
   assert.ok(await page.locator('#view-chats').isVisible());
   assert.match(await page.locator('#view-chats').innerText(), /That conversation isn’t available/);
   assert.equal(await page.locator('.message').count(), 0);
   assert.deepEqual(errors, []);
-  console.log('Passed: five views, fixed 99+ badge, Likes You, matching, conversations, sample threads, undo, profile-only contacts, external links, years, navigation, and responsive layout.');
+  console.log('Passed: five views, live Likes You count, chat dot, matching, conversations, sample threads, undo, profile-only contacts, external links, years, navigation, and responsive layout.');
 
   const gallery = await browser.newPage({ viewport: { width: 1540, height: 1000 }, deviceScaleFactor: 1 });
   await gallery.goto(base);

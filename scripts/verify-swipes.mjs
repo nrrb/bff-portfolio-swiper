@@ -101,6 +101,7 @@ try {
     await desktop.waitForFunction(() => document.querySelector('.swipe-deck').dataset.phase === 'idle');
   }
   assert.ok(await desktop.locator('.deck-empty').isVisible());
+  assert.equal(await desktop.locator('.badge').innerText(), '0');
   assert.ok(await desktop.getByRole('button', { name: 'Like', exact: true }).isDisabled());
   await desktop.getByRole('button', { name: 'Undo', exact: true }).click();
   await settled(desktop, lastLiked);

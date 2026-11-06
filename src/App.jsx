@@ -153,7 +153,7 @@ export default function App() {
           <a key={item.id} href={`#${item.id}`} className={`nav-button${item.id === view ? ' selected' : ''}`}
             aria-label={item.label} title={item.label} aria-current={item.id === view ? 'page' : undefined}>
             <Icon name={item.icon} />
-            {item.id === 'likes' && <span className="badge">99+</span>}
+            {item.id === 'likes' && <span className="badge">{admirers.length}</span>}
             {item.id === 'chats' && matchedApps.length > 0 && <span className="chat-dot" aria-hidden="true" />}
           </a>
         ))}

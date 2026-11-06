@@ -151,7 +151,7 @@ test('React renders five views, the five action controls, and correct navigation
   assert.ok(externalControls.find(control => control.includes('aria-label="Share"') && control.includes(`href="${apps[0].githubUrl}"`)));
   assert.match(html, /aria-current="page"/);
   assert.doesNotMatch(html, /<dialog|id="view-contact"/);
-  assert.match(html, /<span class="badge">99\+<\/span>/);
+  assert.ok(html.includes(`<span class="badge">${apps.length}</span>`));
   assert.match(html, /These apps already swiped right on you/);
   assert.match(html, /Nicholas Bennett/);
   assert.equal(html.split(`mailto:${owner.email}`).length - 1, 1);
