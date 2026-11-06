@@ -10,7 +10,8 @@
     "test": "node --test",
     "screenshot": "node scripts/screenshot.mjs",
     "screenshot:pages": "node scripts/screenshot-pages.mjs",
-    "test:e2e": "node scripts/verify-ui.mjs && node scripts/verify-swipes.mjs"
+    "test:e2e": "node scripts/verify-ui.mjs && node scripts/verify-swipes.mjs",
+    "demo": "node scripts/demo.mjs"
   },
   "dependencies": {
     "react": "^19.3.1",
