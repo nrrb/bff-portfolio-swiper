@@ -20,6 +20,17 @@ after(async () => { await server?.close(); });
 const initialState = createInitialState(apps.map(app => app.id));
 const react = (state, type, appId) => reactionReducer(state, { type, appId, name: appId });
 
+test('social preview uses the branded title and a 1200 by 630 PNG', async () => {
+  const html = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.ok(html.includes('<title>bff ❤️</title>'));
+  assert.ok(html.includes('<meta property="og:title" content="bff ❤️">'));
+  assert.ok(html.includes('<meta property="og:image" content="https://bigfriendlyfunction.com/social-preview.png">'));
+  assert.ok(html.includes('<meta name="twitter:card" content="summary_large_image">'));
+  const image = await readFile(new URL('./public/social-preview.png', import.meta.url));
+  assert.deepEqual([...image.subarray(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
+  assert.deepEqual([image.readUInt32BE(16), image.readUInt32BE(20)], [1200, 630]);
+});
+
 test('passing moves an app to the bottom until every other queued app has appeared', () => {
   const initial = createInitialState(['first', 'second', 'third']);
   let state = react(initial, 'pass', 'first');

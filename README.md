@@ -81,6 +81,8 @@ vercel deploy --prod --project bff-portfolio --scope nrrb-projects --yes
 
 `.vercelignore` excludes original author photos, local build output, README screenshots, and local Vercel metadata from CLI uploads. The published app uses the optimized images in `public/`.
 
+The browser and social titles are `bff ❤️`. Open Graph metadata points to `public/social-preview.png`: the app’s wordmark centered on a black 1200 × 630 canvas, at one-third of the image width. Social cards use the large-image layout.
+
 ## Code and data
 
 | File | Responsibility |
