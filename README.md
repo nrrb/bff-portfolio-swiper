@@ -1,23 +1,108 @@
-# BFF interface prototype
+# BFF portfolio
 
-A React app built with Vite, using a Tinder-inspired interface to browse portfolio apps. The five bottom links open Home, Browser, Likes You, Chats, and Profile. Hash navigation supports direct links, browser Back, and browser Forward without an additional routing package.
+A mobile-first portfolio that borrows the language of a dating app: browse Nicholas Bennett’s projects, swipe on the ones you like, and turn those likes into sample conversations. Built with React and Vite, with 35 projects from `projects.json`.
 
-Use Node.js 20.19+ or 22.12+ (Node 21 is unsupported). In this directory:
+The five bottom navigation buttons open Home, Browser, Likes You, Chats, and Profile. They work on mobile and desktop, with hash routes and browser Back/Forward support.
+
+## How the app flows
+
+1. **Meet an app on Home.** Each card shows a captured project homepage, its name, a short bio, and an “age” such as `’26`, taken from the project’s first commit year.
+2. **Swipe or use the buttons.** Swipe left to pass or right to like. On desktop, click and drag anywhere on the card above the buttons. The card rotates and exits to the side, revealing the blurred next card underneath. A short drag snaps back; vertical gestures scroll long bios.
+3. **Make a match.** Every app has already liked you, so a Like or Superlike always matches. A “You matched!” popup zooms in over 0.25 seconds, stays for 1.5 seconds, then zooms out over 0.25 seconds. The app leaves the swipe stack and Likes You, and appears in Chats.
+4. **Open a conversation.** Chats lists each matched app once. Tapping one opens a playful sample thread based on its bio. The chat icon gets a red dot whenever at least one match exists; opening Chats does not clear it.
+5. **Meet the author.** Follow the thread’s author link or tap Profile to see Nicholas’s personal card, email, GitHub, and LinkedIn. This card stays fixed and cannot be swiped away.
+
+Browser provides another entry point: select any project to preview its card on Home, including an existing match. Likes You lists only apps you have not decided on; its badge shows that list’s actual size, including zero. Passing an app removes it from Likes You but puts it at the back of the swipe queue, so it returns after the other queued apps.
+
+| Card control | Result |
+| --- | --- |
+| Undo | Restore the previous decision and exact queue order; clear the match popup. |
+| Pass / swipe left | Move the app to the back of the queue. If it was matched, remove its conversation. |
+| Superlike | Match and open the project website in a new tab. Disabled when no public website is supplied. |
+| Like / swipe right | Match and move the app into Chats. |
+| Share | Open the project’s GitHub repository in a new tab without changing the decision. |
+
+Decisions persist while navigating, then reset on reload. Chats are canned examples, with no message composer, live messaging, account, or backend. An unavailable thread falls back to the Chats list. Matching every app shows the empty deck and a link to Chats; Undo can bring the last card back.
+
+## Pages and screenshots
+
+These are actual Playwright captures at the iPhone 16 Pro Max’s 440 × 956 CSS-pixel screen size. Home, Browser, Likes You, and empty Chats show a fresh session; the populated Chats, thread, and Profile captures show the same session after two matches. Click an image to open the full capture.
+
+| Home · `#home` | Browser · `#browser` |
+| --- | --- |
+| <a href="docs/screenshots/home.jpg"><img src="docs/screenshots/home.jpg" alt="Home with a project card, five action buttons, and bottom navigation" width="280"></a> | <a href="docs/screenshots/browser.jpg"><img src="docs/screenshots/browser.jpg" alt="Browser listing all projects with homepage thumbnails, names, and categories" width="280"></a> |
+| The swipe deck, with Undo, Pass, Superlike, Like, and Share controls. | The complete project list. Select a row to bring its card to Home. |
+
+| Likes You · `#likes` | Chats · `#chats` |
+| --- | --- |
+| <a href="docs/screenshots/likes.jpg"><img src="docs/screenshots/likes.jpg" alt="Likes You listing undecided apps with the live likes count in navigation" width="280"></a> | <a href="docs/screenshots/chats.jpg"><img src="docs/screenshots/chats.jpg" alt="Chats listing two matched apps, with a red dot on the chat navigation icon" width="280"></a> |
+| Apps awaiting your decision. Matches leave this list and reduce the badge count. | Matched apps become conversations. Open a row to read its sample thread. |
+
+| Sample conversation · `#chats/<app-id>` | Profile · `#profile` |
+| --- | --- |
+| <a href="docs/screenshots/chat-thread.jpg"><img src="docs/screenshots/chat-thread.jpg" alt="Sample conversation showing a matched app’s bio, playful replies, and a link to the author" width="280"></a> | <a href="docs/screenshots/profile.jpg"><img src="docs/screenshots/profile.jpg" alt="Nicholas Bennett’s fixed park-photo card with THE AUTHOR pill and contact links below his face" width="280"></a> |
+| Three sample messages, a link back to Chats, and a link to the author’s profile. | A single photo and contact links, with the text lowered to leave the face clear. |
+
+| Before the first match | Match celebration |
+| --- | --- |
+| <a href="docs/screenshots/chats-empty.jpg"><img src="docs/screenshots/chats-empty.jpg" alt="Empty Chats inviting the visitor to like an app and start a conversation" width="280"></a> | <a href="docs/screenshots/match.jpg"><img src="docs/screenshots/match.jpg" alt="Bright heart popup reading You matched! with the matched project’s name" width="280"></a> |
+| Chats points visitors back to the deck until they make a match. | The popup dismisses automatically and does not block swiping or navigation. |
+
+### Refresh the page screenshots
+
+Start the dev server, then run the following in another terminal, adjusting `TEST_URL` to its printed address:
+
+```sh
+TEST_URL=http://127.0.0.1:5173 npm run screenshot:pages
+```
+
+The script in `scripts/screenshot-pages.mjs` creates a fresh session, captures the five main pages, opens a sample thread, and captures empty Chats and the match popup. It checks the project count, match count, likes badge, chat dot, and browser errors while capturing. The eight JPEGs live in `docs/screenshots/`; they use CSS-pixel resolution to keep the README assets small. The script uses the installed Playwright Chromium browser; install it with `npx playwright install chromium` if needed.
+
+## Run locally
+
+Use Node.js 20.19+ or 22.12+; Node 21 is unsupported.
 
 ```sh
 npm install
 npm run dev
 ```
 
-Open the local URL printed by Vite (normally http://127.0.0.1:5173). Run `npm run build` for the production output in `dist/`, then `npm run preview` to preview that build.
+Open the URL printed by Vite, normally `http://127.0.0.1:5173`. Run `npm run build` to create `dist/`, then `npm run preview` to preview the production build.
 
-The app entry point is `src/main.jsx`, the views are in `src/App.jsx`, card gestures and animation are in `src/Swiper.jsx`, deck/reaction logic is in `src/actions.js`, and navigation is in `src/navigation.js`. The 35 projects come from `projects.json`; `src/data.js` adds stable IDs, screenshot references, and the owner’s contact information. Every project has a `firstCommitDate`; the eight originally missing dates were verified against the earliest commits on GitHub. Cards show the final two digits of that year as the project’s “age.” Vite bundles the SVG sprite with the app.
+## Code and data
+
+| File | Responsibility |
+| --- | --- |
+| `src/main.jsx` | React entry point. |
+| `src/App.jsx` | The five views, matching popup, badges, conversations, and contact links. |
+| `src/Swiper.jsx` | Pointer gestures, card rotation, card exits, and action controls. |
+| `src/actions.js` | Ordered swipe queue, reactions, match history, and Undo. |
+| `src/navigation.js` | Hash routes and browser history subscriptions. |
+| `src/AuthorCard.jsx` | The fixed personal profile card. |
+| `projects.json` | Project names, URLs, descriptions, first commit dates, and supporting context. |
+| `src/data.js` | Stable project IDs, screenshot references, and the author’s contact details. |
+| `src/screenshots.json` | Source URLs and capture results for project homepage images. |
+| `icons.svg` / `styles.css` | Shared SVG symbols and responsive presentation. |
+
+Project descriptions appear as card bios; longer `problem`, `role`, and related fields remain in the source data. Project “ages” use the last two digits of `firstCommitDate`, prefixed with an apostrophe.
+
+Mobile fills the viewport with safe-area padding; desktop uses a centered phone layout. The viewport clips rotated cards so swipes cannot create scrollbars. Lists, threads, and long card bios scroll independently. Reduced-motion preferences skip card transitions and replace the popup’s zoom with a fade. Decisions are announced through a visually hidden status region; there is no visible status footer.
+
+The author card serves only `public/author-photos/smiling_sun_beard_park.webp`: a 1320 × 1760 image at about 223 KB, reduced from the 1.73 MB original. Original camera files are retained locally under the ignored `source-assets/author-photos/` directory and are excluded from the website build.
 
 ## Icons
 
-Recommended library: [Phosphor](https://phosphoricons.com/). Its [official SVG catalog](https://github.com/phosphor-icons/core) includes filled, bold, and regular weights under the MIT license. These are the equivalent names:
+The app uses original, reusable SVG symbols in `icons.svg`, bundled by Vite. No icon package or CDN is required. The sprite also includes a hamburger menu symbol. Accessible labels belong on the enclosing control:
 
-| Action | Phosphor name | Suggested weight / color |
+```html
+<button aria-label="Undo">
+  <svg aria-hidden="true"><use href="icons.svg#undo"></use></svg>
+</button>
+```
+
+For an alternative library, the equivalent names in [Phosphor’s SVG catalog](https://github.com/phosphor-icons/core) are:
+
+| Action | Phosphor name | Weight / color |
 | --- | --- | --- |
 | Undo | ArrowCounterClockwise | Bold / yellow |
 | Pass | X | Bold / pink |
@@ -30,55 +115,29 @@ Recommended library: [Phosphor](https://phosphoricons.com/). Its [official SVG c
 | Chats | ChatCircle | Regular / gray |
 | Profile | User | Regular / gray |
 
-The prototype uses original, reusable SVG symbols in `icons.svg`, with no icon package or CDN required. Both a flame and hamburger menu are included. Use a symbol like this, with the accessible label on the button:
+## Project homepage screenshots
 
-```html
-<button aria-label="Undo">
-  <svg aria-hidden="true"><use href="icons.svg#undo"></use></svg>
-</button>
-```
+The card images are separate from the README’s page captures. `public/project-screenshots/` contains 34 JPEGs captured from the supplied `websiteUrl` values, including documentation or package pages when those are the supplied destinations. Dancefloor Bass Analyzer has no public website URL and uses a labeled fallback. Lists use the same captures as thumbnails.
 
-## Scope and checks
-
-Project `description` fields are short, playful dating bios for the cards. Detailed project context remains in the existing `problem`, `role`, and related fields where provided.
-
-The mobile layout fills the viewport with safe-area padding; desktop uses a centered card interface. Drag anywhere on the card above the buttons, including its image or text. Swiping left passes; swiping right likes. A horizontal drag of roughly a quarter of the card’s width commits a decision (capped at 120px); shorter drags snap back. Vertical gestures remain available for scrolling text, and cancelled gestures do not change the deck. The card rotates with the drag, a blurred next card sits underneath, and committed cards slide off the chosen side. The Like and Pass buttons use the same exit animation. Reduced-motion settings skip automatic transitions.
-
-The shared viewport clips moving cards and cannot scroll, so translated or rotated cards cannot introduce scrollbars. List, chat, and profile pages have their own vertical scroll areas; long card descriptions can scroll independently.
-
-The deck is an ordered queue. Passing puts an app at the bottom so all other queued apps appear before it returns. Likes and superlikes create matches, leave the swipe queue, and appear in Chats. Undo restores the previous decision and exact queue order. Matching every app shows a link to Chats; passing the final unmatched app safely cycles that one card. Browser can still preview any app without automatically putting an existing match back in the queue.
-
-Likes and superlikes also show a centered “You matched!” box with the app’s name. It zooms in over 0.25 seconds, holds for 1.5 seconds, and zooms out over 0.25 seconds. It never blocks controls; a new decision replaces it, and Undo clears it. Reduced-motion preferences use a fade without scaling. A visually hidden status region announces decisions to screen readers without a visible footer.
-
-Every app has already liked the visitor: Likes You lists undecided apps, and its navigation badge shows the number of apps in that list, including zero when none remain. Superlike also opens the shown app’s website in a new tab while its card exits to the right; it is disabled when there is no public website URL. Share opens the shown app’s GitHub repository in a new tab and keeps the same card selected.
-
-Chats lists matched apps once each. Selecting a conversation opens a playful sample thread at `#chats/<app-id>`, using the app’s bio as its first message. These are sample conversations, with no live messaging or backend. Passing an app removes it from Likes You and removes any existing match; undo restores the previous placement. Repeated likes do not duplicate a conversation. Contact information appears exclusively on Profile, which contains Nicholas Bennett’s name, email, GitHub, and LinkedIn links.
-
-Project cards use the captured homepage images, and lists use the same images as thumbnails. Dancefloor Bass Analyzer has no public website URL and displays a labeled fallback.
-
-Profile uses a fixed personal card with only the park photo, a gold “THE AUTHOR” pill, and contact links in the bio area. It shares the swipe cards’ dimensions, with its text lowered to leave more of the face visible, and never enters the app-matching deck. The card is rendered by `src/AuthorCard.jsx`.
-
-The served park photo in `public/author-photos/` is a 1320 × 1760 WebP, preserving the original aspect ratio within the iPhone 16 Pro Max’s 1320px screen width. It is 223 KB instead of the original 1.73 MB. Original camera files are retained locally under the ignored `source-assets/author-photos/` directory and are not included in the website build.
-
-Reactions and matches stay available while navigating between views and reset on reload. A thread for an unavailable match returns to the Chats list with an explanation. External project links open with `noopener noreferrer`.
-
-## Project screenshots
-
-`public/project-screenshots/` contains 34 JPEG captures. `src/screenshots.json` records each source URL and capture result. Screenshots use Playwright’s iPhone 16 Pro Max settings with the full 440 × 956 screen viewport and 3× pixel density, producing 1320 × 2868 images. They capture the first screen of each supplied `websiteUrl`, including documentation or package pages where those are the provided links. Medium Talk’s onboarding tip is dismissed before capture.
-
-To refresh screenshots:
+Project captures use the full 440 × 956 iPhone 16 Pro Max screen viewport at 3× pixel density, producing 1320 × 2868 images. Medium Talk’s onboarding tip is dismissed before capture. The manifest in `src/screenshots.json` records successes and failures; a failed capture uses a labeled fallback.
 
 ```sh
-npx playwright install chromium
 npm run screenshot
+# Refresh a single project by slug or GitHub repository name:
+npm run screenshot -- medium-talk
 ```
-
-To refresh just one project, pass its slug or GitHub repository name: `npm run screenshot -- medium-talk`. Screenshot failures remain visible in the manifest and use a labeled fallback rather than a broken image. A project without a public website is skipped.
 
 ## Validation
 
-Run `npm test` for app-specific reaction history and undo, navigation, external project links, contact links, React-rendered view/SVG checks, and screenshot file checks.
+```sh
+npm test
+npm run build
+# With the dev server running; adjust the address if needed:
+TEST_URL=http://127.0.0.1:5173 npm run test:e2e
+```
 
-With the dev server running, use `TEST_URL=http://127.0.0.1:5173 npm run test:e2e` (adjust the URL to the server’s printed address). Playwright checks the views, matches, contacts, years, external links, and screenshots, then exercises real desktop mouse drags and emulated mobile touch gestures. Swipe checks cover rotation, the blurred next card, short/cancelled/vertical gestures, a complete queue cycle, matched apps staying out, undo, the final card, empty decks, reduced motion, and a full mobile viewport. Profile checks cover the single photo, shared card dimensions, lowered profile text, and the personal card staying fixed without changing the app deck. External destinations are stubbed during navigation tests. Visual QA images are written under `/private/tmp/`.
+Unit/render tests cover reaction history, queue order, Undo, routes, SVG references, external controls, contacts, the author card, and screenshot files. Playwright checks all views, live badges, popup timing, sample threads, external link destinations, and responsive layouts. It also exercises desktop dragging and emulated touch: rotation, blurred next cards, short/cancelled/vertical gestures, queue cycling, matched apps staying out, empty decks, Undo, reduced motion, clipped exits, and the fixed author card.
 
-The production build, unit/render tests, and Playwright checks pass. Browser checks use Chromium mobile emulation; physical iPhone Safari has not been tested.
+External destinations are stubbed during navigation tests. Visual QA images from those checks are written under `/private/tmp/`; the committed README captures are refreshed separately with `npm run screenshot:pages`.
+
+Browser checks use Chromium mobile emulation. Physical iPhone Safari has not been tested. Reactions reset on reload, and sample conversations do not send messages.
