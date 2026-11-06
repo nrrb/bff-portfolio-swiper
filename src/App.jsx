@@ -143,7 +143,7 @@ export default function App() {
             <AppArtwork app={app} />
             <div className="profile-copy">
               <span className="likes-you"><Icon name="heart" />{['like', 'superlike'].includes(reactions[app.id]) ? 'It’s a match' : 'Likes You'}</span>
-              <h1 id="app-name">{app.name} {app.year && <span className="age">{app.year.slice(-2)}</span>}</h1>
+              <h1 id="app-name">{app.name} {app.year && <span className="age">’{app.year.slice(-2)}</span>}</h1>
               <p className="app-description">{app.description}</p>
             </div>
           </article>

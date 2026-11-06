@@ -40,7 +40,7 @@ try {
     await page.waitForURL('**/#home');
     assert.ok((await page.locator('#app-name').innerText()).includes(name));
     const project = projects.find(project => project.name === name);
-    assert.equal(await page.locator('#app-name .age').innerText(), project.firstCommitDate.slice(2, 4));
+    assert.equal(await page.locator('#app-name .age').innerText(), `’${project.firstCommitDate.slice(2, 4)}`);
     assert.equal(await page.locator('#view-home .profile-copy a').count(), 0);
     const website = page.locator('.actions .superlike');
     if (project.websiteUrl) {
