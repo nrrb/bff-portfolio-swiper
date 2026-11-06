@@ -69,6 +69,18 @@ npm run dev
 
 Open the URL printed by Vite, normally `http://127.0.0.1:5173`. Run `npm run build` to create `dist/`, then `npm run preview` to preview the production build.
 
+## Vercel deployment
+
+The production site is [bigfriendlyfunction.com](https://bigfriendlyfunction.com/), hosted by the `bff-portfolio` project in the `nrrb-projects` Vercel team. The `www` hostname redirects to the main domain. The separate `nicholasbennett.work` site stays on its existing `bff-site` project.
+
+Vercel uses the Vite framework preset, `npm run build`, and the `dist` output directory. The project is connected to `nrrb/bff-portfolio-swiper`; pushes to its production branch, `main`, deploy automatically. To deploy the current checkout manually with an authenticated Vercel CLI:
+
+```sh
+vercel deploy --prod --project bff-portfolio --scope nrrb-projects --yes
+```
+
+`.vercelignore` excludes original author photos, local build output, README screenshots, and local Vercel metadata from CLI uploads. The published app uses the optimized images in `public/`.
+
 ## Code and data
 
 | File | Responsibility |
