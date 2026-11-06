@@ -129,20 +129,16 @@ export default function App() {
         </section>
         <section id="view-browser" className="page-view" aria-labelledby="browser-title" hidden={view !== 'browser'}>
           <p className="eyebrow">THE COLLECTION</p><h1 id="browser-title">All apps</h1>
-          <p className="page-intro">A little browsing. A lot to discover.</p>
           <AppList items={apps} onSelect={selectApp} />
         </section>
         <section id="view-likes" className="page-view" aria-labelledby="likes-title" hidden={view !== 'likes'}>
           <p className="eyebrow">YOU’VE GOT ADMIRERS</p><h1 id="likes-title">Likes You</h1>
-          <p className="page-intro">These apps already swiped right on you. Like one back and make it a match.</p>
           <AppList items={admirers} onSelect={selectApp} />
         </section>
         <section id="view-chats" className="page-view" aria-label="Chats" hidden={view !== 'chats'}>
           {conversation ? <ConversationThread app={conversation} /> : (
             <>
               <p className="eyebrow">THE FEELING’S MUTUAL</p><h1>Chats <span className="count">{matchedApps.length}</span></h1>
-              <p className="page-intro">You liked them. They’re already into you.</p>
-              {threadId && <p className="page-intro">That conversation isn’t available. Match with an app to start chatting.</p>}
               <ConversationList items={matchedApps} />
             </>
           )}

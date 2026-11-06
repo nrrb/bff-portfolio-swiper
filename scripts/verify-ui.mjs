@@ -156,7 +156,7 @@ try {
   }
   await page.reload();
   assert.ok(await page.locator('#view-chats').isVisible());
-  assert.match(await page.locator('#view-chats').innerText(), /That conversation isn’t available/);
+  assert.match(await page.locator('#view-chats').innerText(), /Your next conversation starts with a like/);
   assert.equal(await page.locator('.message').count(), 0);
   assert.deepEqual(errors, []);
   console.log('Passed: five views, match popup timing and cleanup, live Likes You count, chat dot, matching, conversations, sample threads, undo, profile-only contacts, external links, years, navigation, and responsive layout.');

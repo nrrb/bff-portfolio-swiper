@@ -154,7 +154,7 @@ test('React renders five views, the five action controls, and correct navigation
   assert.doesNotMatch(html, /<p class="status"/);
   assert.ok(html.includes('<span class="sr-only" role="status">'));
   assert.ok(html.includes(`<span class="badge">${apps.length}</span>`));
-  assert.match(html, /These apps already swiped right on you/);
+  assert.doesNotMatch(html, /class="page-intro"/);
   assert.match(html, /Nicholas Bennett/);
   assert.equal(html.split(`mailto:${owner.email}`).length - 1, 1);
 });
