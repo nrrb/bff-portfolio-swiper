@@ -1,4 +1,4 @@
-import React, { useReducer, useSyncExternalStore } from 'react';
+import React, { useReducer, useState, useSyncExternalStore } from 'react';
 import Icon from './Icon.jsx';
 import Swiper from './Swiper.jsx';
 import AuthorCard from './AuthorCard.jsx';
@@ -96,6 +96,7 @@ export default function App() {
   const route = useSyncExternalStore(subscribeToNavigation, currentView, () => 'home');
   const [view, threadId] = route.split('/');
   const [state, dispatch] = useReducer(reactionReducer, apps.map(app => app.id), createInitialState);
+  const [match, setMatch] = useState(null);
   const app = apps.find(app => app.id === state.currentAppId);
   const nextAppId = state.queue.find(id => id !== state.currentAppId);
   const nextApp = apps.find(app => app.id === nextAppId);
@@ -106,7 +107,13 @@ export default function App() {
   const selectApp = appId => dispatch({ type: 'select', appId });
 
   function handleAction(action) {
+    setMatch(['like', 'superlike'].includes(action) ? { name: app.name, key: state.history.length } : null);
     dispatch({ type: action, appId: app.id, name: app.name });
+  }
+
+  function handleUndo() {
+    setMatch(null);
+    dispatch({ type: 'undo' });
   }
 
   return (
@@ -118,7 +125,7 @@ export default function App() {
       <div className="view-content" key={view}>
         <section id="view-home" className="swiper-view" aria-label="App swiper" hidden={view !== 'home'}>
           <Swiper app={app} nextApp={nextApp} matched={['like', 'superlike'].includes(reactions[app?.id])}
-            onReact={handleAction} onUndo={() => dispatch({ type: 'undo' })} canUndo={state.history.length > 0} />
+            onReact={handleAction} onUndo={handleUndo} canUndo={state.history.length > 0} />
         </section>
         <section id="view-browser" className="page-view" aria-labelledby="browser-title" hidden={view !== 'browser'}>
           <p className="eyebrow">THE COLLECTION</p><h1 id="browser-title">All apps</h1>
@@ -159,6 +166,15 @@ export default function App() {
         ))}
       </nav>
       <p className="status" role="status">{state.status}</p>
+      {match && (
+        <div className="match-celebration" aria-hidden="true">
+          <div key={match.key} className="match-popup" onAnimationEnd={event => {
+            if (event.animationName === 'match-pop-out') setMatch(null);
+          }}>
+            <Icon name="heart" /><strong>You matched!</strong><span>{match.name}</span>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

@@ -76,6 +76,7 @@ try {
   await desktop.screenshot({ path: '/private/tmp/bff-swipe-right.png' });
   await desktop.mouse.up();
   await settled(desktop, ids[2]);
+  assert.equal(await desktop.locator('.match-popup span').innerText(), projects[1].name);
   await desktop.getByRole('link', { name: 'Chats', exact: true }).click();
   await desktop.locator('#view-chats').waitFor({ state: 'visible' });
   assert.equal(await desktop.locator('.conversation-row').count(), 1);
@@ -101,6 +102,7 @@ try {
     await desktop.waitForFunction(() => document.querySelector('.swipe-deck').dataset.phase === 'idle');
   }
   assert.ok(await desktop.locator('.deck-empty').isVisible());
+  assert.ok(await desktop.locator('.match-popup').evaluate(box => new DOMMatrix(getComputedStyle(box).transform).isIdentity), 'Reduced motion must not zoom the match popup');
   assert.equal(await desktop.locator('.badge').innerText(), '0');
   assert.ok(await desktop.getByRole('button', { name: 'Like', exact: true }).isDisabled());
   await desktop.getByRole('button', { name: 'Undo', exact: true }).click();

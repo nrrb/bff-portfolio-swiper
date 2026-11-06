@@ -75,7 +75,20 @@ try {
     assert.equal(await page.locator('.nav-button[aria-label="Chats"] .chat-dot').count(), matches > 0 ? 1 : 0);
   };
   await openExternalControl('Share', projects[0].githubUrl);
+  assert.equal(await page.locator('.match-popup').count(), 0);
   await page.getByRole('button', { name: 'Like', exact: true }).click();
+  const popup = page.locator('.match-popup');
+  await popup.waitFor({ state: 'visible' });
+  assert.equal(await popup.locator('strong').innerText(), 'You matched!');
+  assert.equal(await popup.locator('span').innerText(), projects[0].name);
+  assert.deepEqual(await popup.evaluate(box => box.getAnimations().map(animation => {
+    const { duration, delay } = animation.effect.getTiming();
+    return [animation.animationName, duration, delay];
+  })), [['match-pop-in', 250, 0], ['match-pop-out', 250, 1750]]);
+  assert.equal(await popup.evaluate(box => getComputedStyle(box).pointerEvents), 'none');
+  await page.waitForFunction(() => getComputedStyle(document.querySelector('.match-popup')).opacity === '1');
+  await page.screenshot({ path: '/private/tmp/bff-match-popup.png' });
+  await popup.waitFor({ state: 'detached', timeout: 3000 });
   await checkCounts(1, projects.length - 1);
   assert.equal(await page.locator('#view-likes .app-row').filter({ hasText: projects[0].name }).count(), 0);
   await page.locator('.conversation-row').click();
@@ -89,6 +102,7 @@ try {
   await openApp(projects[1].name);
   await openExternalControl('Share', projects[1].githubUrl);
   await openExternalControl('Superlike', projects[1].websiteUrl);
+  assert.equal(await popup.locator('span').innerText(), projects[1].name);
   assert.ok(!(await page.locator('#app-name').innerText()).includes(projects[1].name));
   await checkCounts(2, projects.length - 2);
   await page.screenshot({ path: '/private/tmp/bff-chats.png' });
@@ -99,9 +113,11 @@ try {
   await checkCounts(2, projects.length - 2);
   await openApp(projects[0].name);
   await page.getByRole('button', { name: 'Pass', exact: true }).click();
+  assert.equal(await popup.count(), 0);
   await checkCounts(1, projects.length - 2);
   await page.getByRole('link', { name: 'Home', exact: true }).click();
   await page.getByRole('button', { name: 'Undo', exact: true }).click();
+  assert.equal(await popup.count(), 0);
   assert.ok((await page.locator('#app-name').innerText()).includes(projects[0].name));
   await checkCounts(2, projects.length - 2);
   await page.getByRole('link', { name: 'Home', exact: true }).click();
@@ -143,7 +159,7 @@ try {
   assert.match(await page.locator('#view-chats').innerText(), /That conversation isn’t available/);
   assert.equal(await page.locator('.message').count(), 0);
   assert.deepEqual(errors, []);
-  console.log('Passed: five views, live Likes You count, chat dot, matching, conversations, sample threads, undo, profile-only contacts, external links, years, navigation, and responsive layout.');
+  console.log('Passed: five views, match popup timing and cleanup, live Likes You count, chat dot, matching, conversations, sample threads, undo, profile-only contacts, external links, years, navigation, and responsive layout.');
 
   const gallery = await browser.newPage({ viewport: { width: 1540, height: 1000 }, deviceScaleFactor: 1 });
   await gallery.goto(base);
