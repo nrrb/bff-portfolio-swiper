@@ -11,7 +11,7 @@ npm run dev
 
 Open the local URL printed by Vite (normally http://127.0.0.1:5173). Run `npm run build` for the production output in `dist/`, then `npm run preview` to preview that build.
 
-The app entry point is `src/main.jsx`, the interface is `src/App.jsx`, reaction/share logic is in `src/actions.js`, and navigation is in `src/navigation.js`. The 35 projects come from `projects.json`; `src/data.js` adds stable IDs, screenshot references, and the owner’s contact information. Years use `firstCommitDate` when provided; entries without dates omit the year. Vite bundles the SVG sprite with the app.
+The app entry point is `src/main.jsx`, the interface is `src/App.jsx`, reaction/share logic is in `src/actions.js`, and navigation is in `src/navigation.js`. The 35 projects come from `projects.json`; `src/data.js` adds stable IDs, screenshot references, and the owner’s contact information. Every project has a `firstCommitDate`; the eight originally missing dates were verified against the earliest commits on GitHub. Cards show the final two digits of that year as the project’s “age.” Vite bundles the SVG sprite with the app.
 
 ## Icons
 

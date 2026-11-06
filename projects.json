@@ -31,7 +31,8 @@
         "alt": "MITRE ATT&CK Flashcards cybersecurity learning application."
       }
     ],
-    "contentTodos": []
+    "contentTodos": [],
+    "firstCommitDate": "2026-10-29T20:51:47Z"
   },
   {
     "name": "Tiny Goose Club",
@@ -66,7 +67,8 @@
         "alt": "Tiny Goose Club website for a public creative meetup in Baltimore."
       }
     ],
-    "contentTodos": []
+    "contentTodos": [],
+    "firstCommitDate": "2026-10-08T15:46:30Z"
   },
   {
     "name": "Medium Talk",
@@ -115,7 +117,8 @@
       }
     ],
     "contentTodos": [],
-    "contact": "Have an idea that brings people together? Tell me about the setting and how software could help."
+    "contact": "Have an idea that brings people together? Tell me about the setting and how software could help.",
+    "firstCommitDate": "2025-08-01T14:36:36Z"
   },
   {
     "name": "OG Blacman",
@@ -161,7 +164,8 @@
     "contentTodos": [
       "I’m awaiting client direction to add third-party merch links, event listings through Posh, and updates for future song releases."
     ],
-    "contact": "Need a website that feels like you? Tell me about your identity, content, and the people you want to reach."
+    "contact": "Need a website that feels like you? Tell me about your identity, content, and the people you want to reach.",
+    "firstCommitDate": "2026-08-20T14:07:45Z"
   },
   {
     "name": "Kellogg Board Fellows Optimizer",
@@ -198,7 +202,8 @@
       "TODO_CONTENT: Document the original preference-input format, matching rules, and export behavior."
     ],
     "contact": "Working through preferences or placement data by hand? Tell me about the rules and the output you need.",
-    "originalSource": "https://github.com/nukellogg/kbfmatcher"
+    "originalSource": "https://github.com/nukellogg/kbfmatcher",
+    "firstCommitDate": "2021-09-21T16:25:25Z"
   },
   {
     "name": "Poster Slicer",
@@ -233,7 +238,8 @@
     "contentTodos": [
       "TODO_CONTENT: Verify image input, scale and paper settings, preview controls, and export format."
     ],
-    "contact": "Have a repetitive image or document task? Tell me about your inputs and the finished output you need."
+    "contact": "Have a repetitive image or document task? Tell me about your inputs and the finished output you need.",
+    "firstCommitDate": "2025-03-12T16:16:10Z"
   },
   {
     "name": "RekordBox Bass Notes",
@@ -270,7 +276,8 @@
     "contentTodos": [
       "TODO_CONTENT: Confirm the analysis fields, database fields, setup requirements, and supported versions before publishing usage instructions. No compatibility or performance guarantees are supplied."
     ],
-    "contact": "Need a custom tool to fit an existing workflow? Tell me where your data lives and how you want to use it."
+    "contact": "Need a custom tool to fit an existing workflow? Tell me where your data lives and how you want to use it.",
+    "firstCommitDate": "2026-09-01T13:58:34Z"
   },
   {
     "name": "Dancefloor Bass Analyzer",
@@ -309,7 +316,8 @@
     "contentTodos": [
       "I’m gathering sound-system equipment information and audio-response metadata with a traveling DJ based in Baltimore. The goal is to build club-specific audio profiles that help DJs choose tracks likely to perform well on a given sound system."
     ],
-    "contact": "Need a focused desktop tool for complex data? Tell me what you need to inspect and how you work with it."
+    "contact": "Need a focused desktop tool for complex data? Tell me what you need to inspect and how you work with it.",
+    "firstCommitDate": "2026-08-27T17:33:06Z"
   },
   {
     "name": "Cute QR Code",

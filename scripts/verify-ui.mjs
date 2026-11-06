@@ -20,7 +20,10 @@ try {
     await page.locator('#view-browser .app-row').filter({ hasText: name }).click();
     await page.waitForURL('**/#home');
     assert.ok((await page.locator('#app-name').innerText()).includes(name));
+    const project = projects.find(project => project.name === name);
+    assert.equal(await page.locator('#app-name .age').innerText(), project.firstCommitDate.slice(2, 4));
   };
+  for (const project of projects) await openApp(project.name);
   await openApp(projects[0].name);
   const picture = page.locator('#view-home .screenshot-artwork img');
   await picture.waitFor({ state: 'visible' });

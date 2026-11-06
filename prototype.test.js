@@ -160,7 +160,9 @@ test('all supplied projects have stable IDs and verified screenshot files or an 
     const id = projectId(project);
     const app = apps.find(item => item.id === id);
     assert.equal(app.description, project.description);
-    assert.equal(app.year, project.firstCommitDate?.slice(0, 4) || null);
+    assert.match(project.firstCommitDate, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/, `${project.name} needs a creation date`);
+    assert.ok(Number.isFinite(Date.parse(project.firstCommitDate)), project.name);
+    assert.equal(app.year, project.firstCommitDate.slice(0, 4));
     const capture = manifest[id];
     assert.ok(capture, id);
     if (capture.status === 'captured') {
