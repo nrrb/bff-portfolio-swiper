@@ -1,0 +1,530 @@
+[
+  {
+    "name": "MITRE ATT&CK Flashcards",
+    "websiteUrl": "https://nrrb.github.io/mitre-flash-cards/",
+    "githubUrl": "https://github.com/nrrb/mitre-flash-cards",
+    "description": "An independent cybersecurity learning app I built to explore ATT&CK techniques and sub-techniques, security events, and threat detection concepts.",
+    "slug": "mitre-attack-flashcards",
+    "label": "Independent cybersecurity learning project",
+    "problem": "Learning a security framework takes more than memorizing names. I wanted a way to explore ATT&CK techniques and sub-techniques alongside security events and threat detection concepts.",
+    "role": "I independently built the learning application as a way to deepen my cybersecurity understanding and make the material easier to revisit.",
+    "decisions": [
+      {
+        "decision": "Flashcards as a learning format",
+        "purpose": "Break a broad cybersecurity framework into focused concepts to study and revisit."
+      },
+      {
+        "decision": "Connect techniques with security events",
+        "purpose": "Explore the relationship between ATT&CK terminology and the events involved in threat detection."
+      }
+    ],
+    "delivered": [
+      "A public cybersecurity learning application for exploring ATT&CK techniques, sub-techniques, security events, and threat detection concepts."
+    ],
+    "planned": [],
+    "media": [
+      {
+        "src": "/images/projects/mitre-attack-flashcards/learning-app.png",
+        "assetPath": "/images/projects/mitre-attack-flashcards/learning-app.png",
+        "title": "MITRE ATT&CK Flashcards learning app",
+        "caption": "The live independent learning application. It is a study project, not a production threat detection platform.",
+        "alt": "MITRE ATT&CK Flashcards cybersecurity learning application."
+      }
+    ],
+    "contentTodos": []
+  },
+  {
+    "name": "Tiny Goose Club",
+    "websiteUrl": "https://tinygoose.club/",
+    "githubUrl": "https://github.com/nrrb/tinygoose.club",
+    "description": "A biweekly public creative meetup in Baltimore that I organize and host. A little structure, a welcoming space, and time to make something together.",
+    "slug": "tiny-goose-club",
+    "label": "Community organizing & creative meetup",
+    "problem": "Making time for a creative project can be easier with company. Tiny Goose Club gives people in Baltimore a regular public meetup where they can bring something to work on and get to know one another.",
+    "role": "I organize and host the biweekly meetup, and built its website to share event information, expectations, and RSVP links.",
+    "decisions": [
+      {
+        "decision": "A regular gathering open to the public",
+        "purpose": "Give people a recurring opportunity to make things and build connections."
+      },
+      {
+        "decision": "Event information and expectations in one place",
+        "purpose": "Help someone new understand the meetup and find a way to join."
+      }
+    ],
+    "delivered": [
+      "A biweekly public creative meetup in Baltimore that I organize and host.",
+      "A public website with meetup information and RSVP links."
+    ],
+    "planned": [],
+    "media": [
+      {
+        "src": "/images/projects/tiny-goose-club/meetup-website.png",
+        "assetPath": "/images/projects/tiny-goose-club/meetup-website.png",
+        "title": "Tiny Goose Club meetup website",
+        "caption": "The live meetup website, with information for people interested in joining the creative gathering.",
+        "alt": "Tiny Goose Club website for a public creative meetup in Baltimore."
+      }
+    ],
+    "contentTodos": []
+  },
+  {
+    "name": "Medium Talk",
+    "websiteUrl": "https://mediumtalk.org/",
+    "githubUrl": "https://github.com/nrrb/mediumtalk",
+    "description": "A conversation app I developed to help people connect, starting with a public picnic I organized in a Baltimore park.",
+    "slug": "medium-talk",
+    "label": "Independent community project",
+    "problem": "Strangers meeting at a public picnic need a starting point for conversation. I hosted the event through Meetup in a Baltimore park and built an app to support getting to know one another.",
+    "role": "I organized the picnic and built Medium Talk to support conversation at the event.",
+    "decisions": [
+      {
+        "decision": "An app built around conversation",
+        "purpose": "Give people meeting for the first time a shared starting point."
+      },
+      {
+        "decision": "A tool connected to an in-person event",
+        "purpose": "Support the social setting I was organizing."
+      }
+    ],
+    "delivered": [
+      "A conversation app, available at mediumtalk.org, built for the public picnic I hosted."
+    ],
+    "planned": [],
+    "media": [
+      {
+        "src": "/images/projects/medium-talk/medium-talk-fan.png",
+        "assetPath": "/images/projects/medium-talk/medium-talk-fan.png",
+        "title": "Medium Talk conversation experience",
+        "caption": "A fan of three Medium Talk screens: the picnic arrival prompt, the central home screen, and a city conversation prompt.",
+        "alt": "Three Medium Talk screens in an overlapping fan: a yellow picnic prompt on the left, the Medium Talk home screen centered in front, and a blue city prompt on the right."
+      },
+      {
+        "src": "/images/projects/medium-talk/picnic-question.png",
+        "assetPath": "/images/projects/medium-talk/picnic-question.png",
+        "title": "Picnic arrival prompt",
+        "caption": "A prompt designed to help picnic guests arrive, get grounded, and begin a real conversation.",
+        "alt": "Yellow Medium Talk prompt asking, What are you giving yourself permission not to do today?"
+      },
+      {
+        "src": "/images/projects/medium-talk/city-question.png",
+        "assetPath": "/images/projects/medium-talk/city-question.png",
+        "title": "City conversation prompt",
+        "caption": "A city-specific prompt that gives strangers a generous, low-pressure opening question. I generated city-specific color schemes from colors commonly associated with each city, for 12 U.S. cities and 43 cities in total.",
+        "alt": "Blue Medium Talk prompt asking, What is a way someone has loved or supported you that meant everything?"
+      }
+    ],
+    "contentTodos": [],
+    "contact": "Have an idea that brings people together? Tell me about the setting and how software could help."
+  },
+  {
+    "name": "OG Blacman",
+    "websiteUrl": "https://www.ogblacman.com/",
+    "githubUrl": "https://github.com/nrrb/ogblacman",
+    "description": "An artist website I built by working with the artist and his team to turn creative direction into dedicated desktop and mobile experiences.",
+    "slug": "og-blacman",
+    "label": "Artist website",
+    "problem": "An artist’s website needs to express a distinctive identity while giving visitors a way to explore music and media on the device they have with them.",
+    "role": "I built the artist website, including dedicated desktop and mobile experiences. Credits for supplied art, music, and other collaborators still need to be added.",
+    "decisions": [
+      {
+        "decision": "Dedicated desktop and mobile compositions",
+        "purpose": "Give the artist’s identity room to work at different screen sizes."
+      },
+      {
+        "decision": "Music and media within the site",
+        "purpose": "Let visitors explore the artist’s work in context."
+      }
+    ],
+    "delivered": [
+      "An artist website available at ogblacman.com, with dedicated desktop and mobile experiences."
+    ],
+    "planned": [
+      "An annotated desktop/mobile design walkthrough, starting with static images and visible explanations."
+    ],
+    "media": [
+      {
+        "src": "/images/projects/og-blacman/desktop-hero.png",
+        "assetPath": "/images/projects/og-blacman/desktop-hero.png",
+        "title": "Desktop hero screenshot",
+        "caption": "Hero composition for the live artist website, combining supplied photography and the OG Blacman wordmark.",
+        "alt": "OG Blacman artist website hero with a red stairwell scene and oversized hand-drawn wordmark."
+      },
+      {
+        "src": "/images/projects/og-blacman/music-player-loop.webm",
+        "assetPath": "/images/projects/og-blacman/music-player-loop.webm",
+        "title": "Phone layout and music player",
+        "caption": "A six-second looping walkthrough of the artist’s custom phone-line player and live spectrum analyzer.",
+        "alt": "OG Blacman music page with a video player and a stylized telephone music player."
+      }
+    ],
+    "contentTodos": [
+      "I’m awaiting client direction to add third-party merch links, event listings through Posh, and updates for future song releases."
+    ],
+    "contact": "Need a website that feels like you? Tell me about your identity, content, and the people you want to reach."
+  },
+  {
+    "name": "Kellogg Board Fellows Optimizer",
+    "websiteUrl": "https://kbfmatcher.surge.sh/",
+    "githubUrl": "https://github.com/nrrb/internship-matcher",
+    "description": "A tool I built to help administrators match MBA fellows to board internships using ranked preferences.",
+    "slug": "kellogg-board-fellows-optimizer",
+    "label": "Original tool / independent refresh planned",
+    "problem": "The original organizational task was to match fellows to placements using ranked preferences. A matching tool provides a way to work through those preferences and produce placement results.",
+    "role": "I originally built the tool, which was used in a more rudimentary form. My repository is a fork of the organization’s project. Any future portfolio refresh is independent; it is not presented as commissioned or adopted by Kellogg.",
+    "decisions": [
+      {
+        "decision": "Ranked preferences as the matching input",
+        "purpose": "Base placement matching on the preferences provided."
+      }
+    ],
+    "delivered": [
+      "The original, more rudimentary matching tool was used. The organization’s repository is linked separately for attribution."
+    ],
+    "planned": [
+      "An independent portfolio refresh. It has not been completed or adopted by Kellogg."
+    ],
+    "media": [
+      {
+        "src": "/images/projects/kellogg-matcher/original-interface.png",
+        "assetPath": "/images/projects/kellogg-matcher/original-interface.png",
+        "title": "Original matching interface",
+        "caption": "A refreshed interface concept for explaining the preference import, validation, matching, and download workflow. It is independent portfolio work, not represented as a commissioned or adopted Kellogg interface.",
+        "alt": "Kellogg Board Fellows Optimizer interface showing a four-step internship matching workflow."
+      }
+    ],
+    "contentTodos": [
+      "TODO_CONTENT: Confirm my original contribution boundaries and organizational collaborators.",
+      "TODO_CONTENT: Document the original preference-input format, matching rules, and export behavior."
+    ],
+    "contact": "Working through preferences or placement data by hand? Tell me about the rules and the output you need.",
+    "originalSource": "https://github.com/nukellogg/kbfmatcher"
+  },
+  {
+    "name": "Poster Slicer",
+    "websiteUrl": "https://posterslicer.surge.sh/",
+    "githubUrl": "https://github.com/nrrb/poster-slicer",
+    "description": "Turn an image into a larger poster printed across ordinary sheets of paper.",
+    "slug": "poster-slicer",
+    "label": "Independent tool / interface refresh planned",
+    "problem": "Printing a large image does not always mean using a large-format printer. This tool is for people who want to assemble a poster from ordinary sheets of paper.",
+    "role": "I built Poster Slicer as an independent tool for turning an image into a printable multi-page poster.",
+    "decisions": [
+      {
+        "decision": "Split an image across ordinary paper sheets",
+        "purpose": "Make a larger poster possible with a standard paper format."
+      }
+    ],
+    "delivered": [
+      "The current image-to-poster tool is available online."
+    ],
+    "planned": [
+      "An interface refresh. Before-and-after comparisons will be added once the refresh exists."
+    ],
+    "media": [
+      {
+        "src": "/images/projects/poster-slicer/page-grid.png",
+        "assetPath": "/images/projects/poster-slicer/page-grid.png",
+        "title": "Current page-grid preview",
+        "caption": "The live Poster Slicer interface showing image upload, poster dimensions, page count, and a multi-page preview.",
+        "alt": "Poster Slicer interface with a large script image divided across a printable grid of pages."
+      }
+    ],
+    "contentTodos": [
+      "TODO_CONTENT: Verify image input, scale and paper settings, preview controls, and export format."
+    ],
+    "contact": "Have a repetitive image or document task? Tell me about your inputs and the finished output you need."
+  },
+  {
+    "name": "RekordBox Bass Notes",
+    "websiteUrl": "https://nrrb.github.io/rekordbox-bass-notes/",
+    "githubUrl": "https://github.com/nrrb/rekordbox-bass-notes",
+    "description": "Profiles the bass characteristics of music and writes results directly into the RekordBox database, helping DJs identify tracks that SHAKE the dancers.",
+    "slug": "rekordbox-bass-notes",
+    "label": "DJ workflow tool",
+    "problem": "DJs looking for tracks with strong low-end energy need information they can use in their existing music-library workflow. This tool connects bass analysis to RekordBox.",
+    "role": "I built a tool that profiles bass characteristics and writes the results directly into the RekordBox database.",
+    "decisions": [
+      {
+        "decision": "Bass-focused analysis",
+        "purpose": "Help DJs identify tracks with strong low-end energy."
+      },
+      {
+        "decision": "Results written into the RekordBox database",
+        "purpose": "Put the analysis into the existing DJ workflow."
+      }
+    ],
+    "delivered": [
+      "A bass-profiling tool with direct RekordBox database integration."
+    ],
+    "planned": [],
+    "media": [
+      {
+        "src": "/images/projects/rekordbox-bass-notes/analysis-output.png",
+        "assetPath": "/images/projects/rekordbox-bass-notes/analysis-output.png",
+        "title": "Bass analysis output",
+        "caption": "The Bass Notes library view: a selected track’s low, mid, and high bass readings sit alongside its spectrum and the batch re-analysis queue.",
+        "alt": "RekordBox Bass Notes desktop app showing a track library, bass scores, spectrum bars, and a batch re-analysis panel."
+      }
+    ],
+    "contentTodos": [
+      "TODO_CONTENT: Confirm the analysis fields, database fields, setup requirements, and supported versions before publishing usage instructions. No compatibility or performance guarantees are supplied."
+    ],
+    "contact": "Need a custom tool to fit an existing workflow? Tell me where your data lives and how you want to use it."
+  },
+  {
+    "name": "Dancefloor Bass Analyzer",
+    "websiteUrl": null,
+    "githubUrl": "https://github.com/nrrb/music-energy-analyzer",
+    "description": "A desktop app for exploring the sub-sonic characteristics of a DJ’s music library, built with React and Rust.",
+    "slug": "dancefloor-bass-analyzer",
+    "label": "Desktop app / in development",
+    "problem": "A DJ exploring a music library needs a way to inspect the sub-sonic character of tracks. This project focuses on that exploration in a desktop interface.",
+    "role": "I’m developing the desktop app with React and Rust. Its focus is library exploration and track inspection, distinct from the direct RekordBox database integration of Bass Notes.",
+    "decisions": [
+      {
+        "decision": "A desktop interface built with React and Rust",
+        "purpose": "Bring music-library exploration into a dedicated application."
+      },
+      {
+        "decision": "Track-level inspection as the focus",
+        "purpose": "Help DJs explore the sub-sonic characteristics of individual tracks."
+      }
+    ],
+    "delivered": [
+      "An in-development desktop application. A downloadable production release is not being offered here."
+    ],
+    "planned": [
+      "Continue developing and documenting local processing, track inspection, adjustable profiles, and responsive analysis. Exact feature readiness still needs confirmation."
+    ],
+    "media": [
+      {
+        "src": "/images/projects/dancefloor-bass-analyzer/track-library.png",
+        "assetPath": "/images/projects/dancefloor-bass-analyzer/track-library.png",
+        "title": "Track library and detail view",
+        "caption": "The in-development desktop app showing a scanned library, a selected track’s spectrum and spectrogram, and calculated sub-sonic measures.",
+        "alt": "Dancefloor Bass Analyzer desktop app with a track list, audio spectrum, spectrogram, and bass-analysis measurements."
+      }
+    ],
+    "contentTodos": [
+      "I’m gathering sound-system equipment information and audio-response metadata with a traveling DJ based in Baltimore. The goal is to build club-specific audio profiles that help DJs choose tracks likely to perform well on a given sound system."
+    ],
+    "contact": "Need a focused desktop tool for complex data? Tell me what you need to inspect and how you work with it."
+  },
+  {
+    "name": "Cute QR Code",
+    "websiteUrl": "https://cute-qr-code.surge.sh/",
+    "githubUrl": "https://github.com/nrrb/cute-qr-code",
+    "description": "A Vue app that turns text and URLs into QR codes, with copyable text and downloadable PNG exports.",
+    "linkLabel": "Website",
+    "firstCommitDate": "2026-10-03T02:36:55Z"
+  },
+  {
+    "name": "Walking Quests",
+    "websiteUrl": "https://walkingquests.surge.sh/",
+    "githubUrl": "https://github.com/nrrb/walking-quests",
+    "description": "A daily walking-quest app: pick a quest, mark it complete, and revisit past adventures through a calendar.",
+    "linkLabel": "Website",
+    "firstCommitDate": "2026-09-23T01:41:11Z"
+  },
+  {
+    "name": "Inverso",
+    "websiteUrl": "https://inverso.surge.sh/",
+    "githubUrl": "https://github.com/nrrb/inverso",
+    "description": "A browser-based design tool that overlays text with colors computed as the inverse of the image underneath, for print-ready artwork.",
+    "linkLabel": "Website",
+    "firstCommitDate": "2026-05-21T02:31:46Z"
+  },
+  {
+    "name": "Background Removal for Artists",
+    "websiteUrl": "https://nrrb.github.io/bgremove/",
+    "githubUrl": "https://github.com/nrrb/bgremove",
+    "description": "A browser-based tool for cutting subjects out of photos and saving transparent PNGs, with all image processing on your device.",
+    "linkLabel": "Project documentation",
+    "firstCommitDate": "2026-05-19T23:15:03Z"
+  },
+  {
+    "name": "Black & White Image Tools",
+    "websiteUrl": "https://nrrb.github.io/blackwhiteimage/",
+    "githubUrl": "https://github.com/nrrb/blackwhiteimage",
+    "description": "Python tools for converting images to black and white, creating transparent variants, and isolating dominant colors.",
+    "linkLabel": "Project documentation",
+    "firstCommitDate": "2026-05-08T20:40:21Z"
+  },
+  {
+    "name": "DTG Photo Mask",
+    "websiteUrl": "https://dtgphotomask.surge.sh/",
+    "githubUrl": "https://github.com/nrrb/dtgphotomask",
+    "description": "Image-processing tools that apply geometric transparency masks to reduce ink coverage for direct-to-garment and direct-to-film printing.",
+    "linkLabel": "Website",
+    "firstCommitDate": "2026-04-24T03:13:45Z"
+  },
+  {
+    "name": "PixelSVG",
+    "websiteUrl": "https://pixelsvg.surge.sh/",
+    "githubUrl": "https://github.com/nrrb/pixelsvg",
+    "description": "A browser-based pixel drawing app with local documents, selection and paste tools, and SVG import and export.",
+    "linkLabel": "Website",
+    "firstCommitDate": "2026-04-17T02:25:32Z"
+  },
+  {
+    "name": "Chrome Console ANSI",
+    "websiteUrl": "https://chrome-console-ansi.surge.sh/",
+    "githubUrl": "https://github.com/nrrb/chrome-console-ansi",
+    "description": "A client-side ANSI art inspector that decodes .ANS files and checks whether Chrome DevTools can print their escape sequences.",
+    "linkLabel": "Website",
+    "firstCommitDate": "2026-04-02T18:00:41Z"
+  },
+  {
+    "name": "IFS Shirt",
+    "websiteUrl": "https://ifs-shirt.surge.sh/",
+    "githubUrl": "https://github.com/nrrb/ifs-shirt",
+    "description": "A fractal design tool with fern, Sierpinski, snowflake, and dragon patterns, adjustable colors, and PNG export.",
+    "linkLabel": "Website",
+    "firstCommitDate": "2026-03-30T00:18:35Z"
+  },
+  {
+    "name": "Blindfolded Brain Dump",
+    "websiteUrl": "https://blindfoldedbraindump.surge.sh/",
+    "githubUrl": "https://github.com/nrrb/blindfolded-brain-dump",
+    "description": "A free-association writing app that hides earlier text to keep you writing, with a visible tail and local browser storage.",
+    "linkLabel": "Website",
+    "firstCommitDate": "2025-11-18T19:20:36Z"
+  },
+  {
+    "name": "Grid Surface Warper",
+    "websiteUrl": "https://nrrb.github.io/grid-surface-warper/",
+    "githubUrl": "https://github.com/nrrb/grid-surface-warper",
+    "description": "An interactive grid-warping experiment with adjustable spacing, surface functions, and parameters.",
+    "linkLabel": "Website",
+    "firstCommitDate": "2025-07-28T14:02:03Z"
+  },
+  {
+    "name": "Slugtoy",
+    "websiteUrl": "https://nrrb.github.io/slugtoy/",
+    "githubUrl": "https://github.com/nrrb/slugtoy",
+    "description": "A full-screen particle-field visual experiment built with Vue 3 and Vite.",
+    "linkLabel": "Website",
+    "firstCommitDate": "2025-07-17T17:20:44Z"
+  },
+  {
+    "name": "Beautiful Words",
+    "websiteUrl": "https://nrrb.github.io/beautifulwords/",
+    "githubUrl": "https://github.com/nrrb/beautifulwords",
+    "description": "A browser-based typography experiment presenting quotations in decorative script.",
+    "linkLabel": "Website",
+    "firstCommitDate": "2025-07-08T21:04:08Z"
+  },
+  {
+    "name": "Timewarp",
+    "websiteUrl": "https://nrrb.github.io/timewarp/",
+    "githubUrl": "https://github.com/nrrb/timewarp",
+    "description": "An experimental digital clock exploring the question, “What even is time?”",
+    "linkLabel": "Website",
+    "firstCommitDate": "2025-07-01T13:38:13Z"
+  },
+  {
+    "name": "BurningText",
+    "websiteUrl": "https://nrrb.github.io/burningtext/",
+    "githubUrl": "https://github.com/nrrb/burningtext",
+    "description": "A Vue component that renders text with a dynamic fire effect using noise and simulated heat diffusion.",
+    "linkLabel": "Website",
+    "firstCommitDate": "2025-04-28T03:00:21Z"
+  },
+  {
+    "name": "Voxel Fire",
+    "websiteUrl": "https://nrrb.github.io/voxelfire/",
+    "githubUrl": "https://github.com/nrrb/voxelfire",
+    "description": "The classic demoscene fire effect rendered in 3D with voxels and Three.js.",
+    "linkLabel": "Website",
+    "firstCommitDate": "2025-04-27T23:34:49Z"
+  },
+  {
+    "name": "Markdown Splitter",
+    "websiteUrl": "https://www.npmjs.com/package/@beautifullife/markdown-splitter",
+    "githubUrl": "https://github.com/nrrb/markdown-splitter",
+    "description": "A command-line tool that turns a long Markdown file into linked HTML pages with a table of contents and syntax highlighting.",
+    "linkLabel": "npm package",
+    "firstCommitDate": "2025-04-24T02:09:13Z"
+  },
+  {
+    "name": "Spacey",
+    "websiteUrl": "https://nrrb.github.io/spacey/",
+    "githubUrl": "https://github.com/nrrb/spacey",
+    "description": "A starfield paired with procedurally generated spacey music.",
+    "linkLabel": "Website",
+    "firstCommitDate": "2025-04-23T21:15:20Z"
+  },
+  {
+    "name": "Subsonic Analyzer",
+    "websiteUrl": "https://nrrb.github.io/subsonic-analyzer/",
+    "githubUrl": "https://github.com/nrrb/subsonic-analyzer",
+    "description": "A browser tool for uploading MP3 files and calculating their low-frequency energy in the 20–150 Hz range.",
+    "linkLabel": "Website",
+    "firstCommitDate": "2025-04-20T01:35:36Z"
+  },
+  {
+    "name": "Music Analysis",
+    "websiteUrl": "https://nrrb.github.io/musicanalysis/",
+    "githubUrl": "https://github.com/nrrb/musicanalysis",
+    "description": "Tools for exploring low-frequency energy in music, including browser visualizations and Python analysis of a DJ library.",
+    "linkLabel": "Project write-up",
+    "firstCommitDate": "2025-04-15T00:27:23Z"
+  },
+  {
+    "name": "Scrolls",
+    "websiteUrl": "https://nrrb.github.io/scrolls/",
+    "githubUrl": "https://github.com/nrrb/scrolls",
+    "description": "Tiling SVG graphics for wallpaper and tattoo design.",
+    "linkLabel": "Website",
+    "firstCommitDate": "2025-03-09T03:23:56Z"
+  },
+  {
+    "name": "Uber Analytics",
+    "websiteUrl": "https://nrrb.github.io/uber-analytics-project/",
+    "githubUrl": "https://github.com/nrrb/uber-analytics-project",
+    "description": "Data collection and analysis exploring insights from 1.5 years of driving Uber in downtown Chicago.",
+    "linkLabel": "Project write-up",
+    "firstCommitDate": "2025-03-05T18:07:12Z"
+  },
+  {
+    "name": "Hexagonal & Triangular Graph Paper",
+    "websiteUrl": "https://nrrb.github.io/hex-tri-tiling/",
+    "githubUrl": "https://github.com/nrrb/hex-tri-tiling",
+    "description": "A browser-based generator for printable hexagonal and triangular graph paper, exported as PDFs.",
+    "linkLabel": "Website",
+    "firstCommitDate": "2025-02-28T18:50:57Z"
+  },
+  {
+    "name": "Emoji Bouquet",
+    "websiteUrl": "https://emojibouquet.surge.sh/",
+    "githubUrl": "https://github.com/nrrb/emoji-bouquet",
+    "description": "A tool for arranging emojis into bouquets and other patterns.",
+    "linkLabel": "Website",
+    "firstCommitDate": "2020-11-17T17:37:31Z"
+  },
+  {
+    "name": "Tao Te Ching",
+    "websiteUrl": "https://nrrb.github.io/tao-te-ching/",
+    "githubUrl": "https://github.com/nrrb/tao-te-ching",
+    "description": "English interpretations of Lao Tzu’s Tao Te Ching, presented as a reading website.",
+    "linkLabel": "Website",
+    "firstCommitDate": "2017-07-22T22:02:50Z"
+  },
+  {
+    "name": "Fatal Car Crashes",
+    "websiteUrl": "http://nrrb.github.io/fatal-car-crashes/",
+    "githubUrl": "https://github.com/nrrb/fatal-car-crashes",
+    "description": "An exploration of fatal traffic-crash data, with tools for converting and preparing records for mapping and analysis.",
+    "linkLabel": "Project write-up",
+    "firstCommitDate": "2014-01-09T05:03:40Z"
+  },
+  {
+    "name": "Image to ASCII",
+    "websiteUrl": "http://nrrb.github.io/Image-to-ASCII/",
+    "githubUrl": "https://github.com/nrrb/Image-to-ASCII",
+    "description": "A tool for rasterizing image files into ASCII art.",
+    "linkLabel": "Website",
+    "firstCommitDate": "2010-11-29T02:02:36Z"
+  }
+]
