@@ -11,7 +11,7 @@ npm run dev
 
 Open the local URL printed by Vite (normally http://127.0.0.1:5173). Run `npm run build` for the production output in `dist/`, then `npm run preview` to preview that build.
 
-The app entry point is `src/main.jsx`, the interface is `src/App.jsx`, reaction logic is in `src/actions.js`, and navigation is in `src/navigation.js`. The 35 projects come from `projects.json`; `src/data.js` adds stable IDs, screenshot references, and the owner’s contact information. Every project has a `firstCommitDate`; the eight originally missing dates were verified against the earliest commits on GitHub. Cards show the final two digits of that year as the project’s “age.” Vite bundles the SVG sprite with the app.
+The app entry point is `src/main.jsx`, the views are in `src/App.jsx`, card gestures and animation are in `src/Swiper.jsx`, deck/reaction logic is in `src/actions.js`, and navigation is in `src/navigation.js`. The 35 projects come from `projects.json`; `src/data.js` adds stable IDs, screenshot references, and the owner’s contact information. Every project has a `firstCommitDate`; the eight originally missing dates were verified against the earliest commits on GitHub. Cards show the final two digits of that year as the project’s “age.” Vite bundles the SVG sprite with the app.
 
 ## Icons
 
@@ -42,7 +42,13 @@ The prototype uses original, reusable SVG symbols in `icons.svg`, with no icon p
 
 Project `description` fields are short, playful dating bios for the cards. Detailed project context remains in the existing `problem`, `role`, and related fields where provided.
 
-Home displays one app card at a time. Every app has already liked the visitor: Likes You lists undecided apps, and its navigation badge always displays `99+`, regardless of the number of projects or matches. Pass and like advance to the next app. A like creates a match, removes the app from Likes You, and adds its conversation to Chats. Superlike also creates a match while opening the app’s website in a new tab. Share opens its GitHub repository in a new tab. These two controls keep the same card selected; Superlike is disabled when there is no public website URL. Browser lists every app, and selecting one opens its Home card.
+The mobile layout fills the viewport with safe-area padding; desktop uses a centered card interface. Drag anywhere on the card above the buttons, including its image or text. Swiping left passes; swiping right likes. A horizontal drag of roughly a quarter of the card’s width commits a decision (capped at 120px); shorter drags snap back. Vertical gestures remain available for scrolling text, and cancelled gestures do not change the deck. The card rotates with the drag, a blurred next card sits underneath, and committed cards slide off the chosen side. The Like and Pass buttons use the same exit animation. Reduced-motion settings skip automatic transitions.
+
+The shared viewport clips moving cards and cannot scroll, so translated or rotated cards cannot introduce scrollbars. List, chat, and profile pages have their own vertical scroll areas; long card descriptions can scroll independently.
+
+The deck is an ordered queue. Passing puts an app at the bottom so all other queued apps appear before it returns. Likes and superlikes create matches, leave the swipe queue, and appear in Chats. Undo restores the previous decision and exact queue order. Matching every app shows a link to Chats; passing the final unmatched app safely cycles that one card. Browser can still preview any app without automatically putting an existing match back in the queue.
+
+Every app has already liked the visitor: Likes You lists undecided apps, and its navigation badge always displays `99+`. Superlike also opens the shown app’s website in a new tab while its card exits to the right; it is disabled when there is no public website URL. Share opens the shown app’s GitHub repository in a new tab and keeps the same card selected.
 
 Chats lists matched apps once each. Selecting a conversation opens a playful sample thread at `#chats/<app-id>`, using the app’s bio as its first message. These are sample conversations, with no live messaging or backend. Passing an app removes it from Likes You and removes any existing match; undo restores the previous placement. Repeated likes do not duplicate a conversation. Contact information appears exclusively on Profile, which contains Nicholas Bennett’s name, email, GitHub, and LinkedIn links.
 
@@ -67,6 +73,6 @@ To refresh just one project, pass its slug or GitHub repository name: `npm run s
 
 Run `npm test` for app-specific reaction history and undo, navigation, external project links, contact links, React-rendered view/SVG checks, and screenshot file checks.
 
-With the dev server running, use `TEST_URL=http://127.0.0.1:5173 npm run test:e2e` (adjust the URL to the server’s printed address). This uses Playwright to check all five views, the fixed `99+` badge, admirers moving to Chats, sample threads, duplicate matches and undo, profile-only contact information, all project rows and years, new-tab destinations, missing URLs, browser Back, thread links, responsive layout, and screenshot dimensions. External destinations are stubbed during this test. It also writes visual QA images under `/private/tmp/`.
+With the dev server running, use `TEST_URL=http://127.0.0.1:5173 npm run test:e2e` (adjust the URL to the server’s printed address). Playwright checks the views, matches, contacts, years, external links, and screenshots, then exercises real desktop mouse drags and emulated mobile touch gestures. Swipe checks cover rotation, the blurred next card, short/cancelled/vertical gestures, a complete queue cycle, matched apps staying out, undo, the final card, empty decks, reduced motion, and a full mobile viewport. External destinations are stubbed during navigation tests. Visual QA images are written under `/private/tmp/`.
 
 The production build, unit/render tests, and Playwright checks pass. Browser checks use Chromium mobile emulation; physical iPhone Safari has not been tested.

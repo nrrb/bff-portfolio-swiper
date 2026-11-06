@@ -1,33 +1,9 @@
 import React, { useReducer, useSyncExternalStore } from 'react';
-import icons from '../icons.svg?no-inline';
-import { initialState, reactionReducer, appReactions } from './actions.js';
+import Icon from './Icon.jsx';
+import Swiper from './Swiper.jsx';
+import { createInitialState, reactionReducer, appReactions } from './actions.js';
 import { apps, owner } from './data.js';
 import { views, currentView, subscribeToNavigation } from './navigation.js';
-
-const actions = [
-  { action: 'undo', label: 'Undo', icon: 'undo' },
-  { action: 'pass', label: 'Pass', icon: 'pass', large: true },
-  { action: 'superlike', label: 'Superlike', icon: 'star' },
-  { action: 'like', label: 'Like', icon: 'heart', large: true },
-  { action: 'share', label: 'Share', icon: 'share' },
-];
-
-function Icon({ name }) {
-  return <svg aria-hidden="true"><use href={`${icons}#${name}`} /></svg>;
-}
-
-function AppArtwork({ app }) {
-  if (app.image) {
-    return <div className="app-artwork screenshot-artwork"><img src={app.image} alt={`${app.name} homepage on an iPhone 16 Pro Max display`} /></div>;
-  }
-  return (
-    <div className={`app-artwork ${app.theme}`} aria-label={`${app.name} placeholder preview`}>
-      <span className="preview-label">{app.previewLabel}</span>
-      <span className="app-monogram">{app.initials}</span>
-      <span className="preview-caption">{app.category}</span>
-    </div>
-  );
-}
 
 function AppThumbnail({ app }) {
   return (
@@ -118,9 +94,10 @@ export function ContactDetails({ person }) {
 export default function App() {
   const route = useSyncExternalStore(subscribeToNavigation, currentView, () => 'home');
   const [view, threadId] = route.split('/');
-  const [state, dispatch] = useReducer(reactionReducer, initialState);
-  const currentIndex = Math.max(0, apps.findIndex(app => app.id === state.currentAppId));
-  const app = apps[currentIndex];
+  const [state, dispatch] = useReducer(reactionReducer, apps.map(app => app.id), createInitialState);
+  const app = apps.find(app => app.id === state.currentAppId);
+  const nextAppId = state.queue.find(id => id !== state.currentAppId);
+  const nextApp = apps.find(app => app.id === nextAppId);
   const reactions = appReactions(state.history);
   const matchedApps = apps.filter(item => ['like', 'superlike'].includes(reactions[item.id]));
   const admirers = apps.filter(item => !reactions[item.id]);
@@ -128,7 +105,7 @@ export default function App() {
   const selectApp = appId => dispatch({ type: 'select', appId });
 
   function handleAction(action) {
-    dispatch({ type: action, appId: app.id, name: app.name, nextAppId: action === 'superlike' ? app.id : apps[(currentIndex + 1) % apps.length].id });
+    dispatch({ type: action, appId: app.id, name: app.name });
   }
 
   return (
@@ -139,37 +116,8 @@ export default function App() {
       </header>
       <div className="view-content" key={view}>
         <section id="view-home" className="swiper-view" aria-label="App swiper" hidden={view !== 'home'}>
-          <article className="card" aria-labelledby="app-name">
-            <AppArtwork app={app} />
-            <div className="profile-copy">
-              <span className="likes-you"><Icon name="heart" />{['like', 'superlike'].includes(reactions[app.id]) ? 'It’s a match' : 'Likes You'}</span>
-              <h1 id="app-name">{app.name} {app.year && <span className="age">’{app.year.slice(-2)}</span>}</h1>
-              <p className="app-description">{app.description}</p>
-            </div>
-          </article>
-          <div className="actions" role="group" aria-label="App actions">
-            {actions.map(({ action, label, icon, large }) => {
-              const href = action === 'superlike' ? app.websiteUrl : action === 'share' ? app.githubUrl : null;
-              const className = `action ${action}${large ? ' large' : ''}`;
-              if (href) {
-                const description = `Opens the project’s ${action === 'superlike' ? 'website' : 'GitHub repository'} in a new tab`;
-                return (
-                  <a key={action} className={className} href={href} target="_blank" rel="noopener noreferrer"
-                    onClick={action === 'superlike' ? () => handleAction(action) : undefined}
-                    aria-label={label} aria-description={description} title={description}>
-                    <Icon name={icon} />
-                  </a>
-                );
-              }
-              return (
-                <button key={action} className={className} onClick={() => handleAction(action)}
-                  disabled={action === 'superlike' || action === 'share'} aria-label={label}
-                  title={action === 'superlike' ? 'No public website available' : label}>
-                  <Icon name={icon} />
-                </button>
-              );
-            })}
-          </div>
+          <Swiper app={app} nextApp={nextApp} matched={['like', 'superlike'].includes(reactions[app?.id])}
+            onReact={handleAction} onUndo={() => dispatch({ type: 'undo' })} canUndo={state.history.length > 0} />
         </section>
         <section id="view-browser" className="page-view" aria-labelledby="browser-title" hidden={view !== 'browser'}>
           <p className="eyebrow">THE COLLECTION</p><h1 id="browser-title">All apps</h1>

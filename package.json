@@ -9,7 +9,7 @@
     "preview": "vite preview --host 127.0.0.1",
     "test": "node --test",
     "screenshot": "node scripts/screenshot.mjs",
-    "test:e2e": "node scripts/verify-ui.mjs"
+    "test:e2e": "node scripts/verify-ui.mjs && node scripts/verify-swipes.mjs"
   },
   "dependencies": {
     "react": "^19.3.1",

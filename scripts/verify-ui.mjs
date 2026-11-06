@@ -33,6 +33,7 @@ try {
     assert.equal(tab.url(), url);
     assert.equal(await tab.evaluate(() => window.opener), null);
     await tab.close();
+    await page.waitForFunction(() => document.querySelector('.swipe-deck')?.dataset.phase === 'idle');
   };
   const openApp = async name => {
     await page.getByRole('link', { name: 'Browser', exact: true }).click();
@@ -56,9 +57,9 @@ try {
   };
   for (const project of projects) await openApp(project.name);
   await openApp(projects[0].name);
-  const picture = page.locator('#view-home .screenshot-artwork img');
+  const picture = page.locator('#view-home [data-front] .screenshot-artwork img');
   await picture.waitFor({ state: 'visible' });
-  await page.waitForFunction(() => document.querySelector('#view-home .screenshot-artwork img')?.naturalWidth === 1320);
+  await page.waitForFunction(() => document.querySelector('#view-home [data-front] .screenshot-artwork img')?.naturalWidth === 1320);
   assert.deepEqual(await picture.evaluate(img => [img.naturalWidth, img.naturalHeight]), [1320, 2868]);
   await page.screenshot({ path: '/private/tmp/bff-home.png' });
   const checkCounts = async (matches, pending) => {
@@ -83,9 +84,9 @@ try {
   await page.screenshot({ path: '/private/tmp/bff-chat-thread.png' });
   await page.locator('#view-chats a[href="#chats"]').click();
   await openApp(projects[1].name);
-  await openExternalControl('Superlike', projects[1].websiteUrl);
-  assert.ok((await page.locator('#app-name').innerText()).includes(projects[1].name));
   await openExternalControl('Share', projects[1].githubUrl);
+  await openExternalControl('Superlike', projects[1].websiteUrl);
+  assert.ok(!(await page.locator('#app-name').innerText()).includes(projects[1].name));
   await checkCounts(2, projects.length - 2);
   await page.screenshot({ path: '/private/tmp/bff-chats.png' });
   await page.getByRole('link', { name: 'Likes', exact: true }).click();

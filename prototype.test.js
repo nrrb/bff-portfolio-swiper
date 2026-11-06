@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { createServer } from 'vite';
-import { initialState, reactionReducer, appReactions } from './src/actions.js';
+import { createInitialState, reactionReducer, appReactions } from './src/actions.js';
 import { apps, owner } from './src/data.js';
 import { views, viewFromHash, currentView, subscribeToNavigation } from './src/navigation.js';
 import { projectId } from './src/project-id.js';
@@ -17,43 +17,79 @@ before(async () => {
 });
 after(async () => { await server?.close(); });
 
-const react = (state, type, appId, nextAppId) => reactionReducer(state, { type, appId, nextAppId, name: appId });
+const initialState = createInitialState(apps.map(app => app.id));
+const react = (state, type, appId) => reactionReducer(state, { type, appId, name: appId });
 
-test('reactions belong to individual apps and undo reopens the affected app', () => {
-  const liked = react(initialState, 'like', 'first', 'second');
-  let state = react(liked, 'superlike', 'second', 'second');
+test('passing moves an app to the bottom until every other queued app has appeared', () => {
+  const initial = createInitialState(['first', 'second', 'third']);
+  let state = react(initial, 'pass', 'first');
+  assert.deepEqual(state.queue, ['second', 'third', 'first']);
   assert.equal(state.currentAppId, 'second');
-  assert.equal(state.status, 'It’s a match · second');
-  assert.deepEqual(appReactions(state.history), { first: 'like', second: 'superlike' });
-  assert.deepEqual(liked.history, [{ appId: 'first', type: 'like' }]);
-  assert.deepEqual(initialState.history, []);
-  state = reactionReducer(state, { type: 'undo' });
-  assert.equal(state.currentAppId, 'second');
-  assert.deepEqual(appReactions(state.history), { first: 'like' });
-  state = reactionReducer(state, { type: 'undo' });
+  state = react(state, 'pass', 'second');
+  assert.equal(state.currentAppId, 'third');
+  state = react(state, 'pass', 'third');
   assert.equal(state.currentAppId, 'first');
-  assert.deepEqual(state.history, []);
-  state = reactionReducer(state, { type: 'undo' });
-  assert.equal(state.status, 'Nothing to undo yet');
-  assert.equal(state.currentAppId, 'first');
+  assert.deepEqual(state.queue, ['first', 'second', 'third']);
+  assert.deepEqual(initial.queue, ['first', 'second', 'third']);
+  assert.deepEqual(initial.history, []);
 });
 
-test('repeat reactions update one app, pass removes its like, and undo restores it', () => {
-  let state = react(initialState, 'like', 'first');
-  state = react(state, 'superlike', 'first');
-  assert.deepEqual(appReactions(state.history), { first: 'superlike' });
-  state = react(state, 'pass', 'first');
+test('likes and superlikes leave the deck, create matches, and allow an empty deck', () => {
+  let state = createInitialState(['first', 'second']);
+  state = react(state, 'like', 'first');
+  assert.deepEqual(state.queue, ['second']);
+  assert.equal(state.currentAppId, 'second');
+  state = react(state, 'superlike', 'second');
+  assert.deepEqual(state.queue, []);
+  assert.equal(state.currentAppId, null);
+  assert.deepEqual(appReactions(state.history), { first: 'like', second: 'superlike' });
+  assert.equal(state.status, 'It’s a match · second');
+  state = reactionReducer(state, { type: 'undo' });
+  assert.deepEqual(state.queue, ['second']);
+  assert.equal(state.currentAppId, 'second');
+});
+
+test('undo restores the exact deck order and previous match state', () => {
+  const initial = createInitialState(['first', 'second', 'third']);
+  const passed = react(initial, 'pass', 'first');
+  let state = react(passed, 'like', 'second');
+  state = reactionReducer(state, { type: 'undo' });
+  assert.deepEqual(state.queue, passed.queue);
+  assert.equal(state.currentAppId, 'second');
   assert.deepEqual(appReactions(state.history), { first: 'pass' });
   state = reactionReducer(state, { type: 'undo' });
-  assert.deepEqual(appReactions(state.history), { first: 'superlike' });
+  assert.deepEqual(state.queue, initial.queue);
+  assert.equal(state.currentAppId, 'first');
+  assert.deepEqual(appReactions(state.history), {});
+  assert.deepEqual(passed.queue, ['second', 'third', 'first']);
+  state = reactionReducer(state, { type: 'undo' });
+  assert.equal(state.status, 'Nothing to undo yet');
+  assert.deepEqual(state.queue, initial.queue);
 });
 
-test('opening an app preserves likes', () => {
-  const state = react(initialState, 'like', 'first');
-  const opened = reactionReducer(state, { type: 'select', appId: 'second' });
-  assert.deepEqual(appReactions(opened.history), { first: 'like' });
-  assert.equal(opened.currentAppId, 'second');
-  assert.equal(opened.status, state.status);
+test('Browser can preview a matched app without returning it to the swipe queue', () => {
+  const liked = react(createInitialState(['first', 'second', 'third']), 'like', 'first');
+  const preview = reactionReducer(liked, { type: 'select', appId: 'first' });
+  assert.equal(preview.currentAppId, 'first');
+  assert.deepEqual(preview.queue, ['second', 'third']);
+  const superliked = react(preview, 'superlike', 'first');
+  assert.deepEqual(superliked.queue, ['second', 'third']);
+  assert.deepEqual(appReactions(superliked.history), { first: 'superlike' });
+  const undone = reactionReducer(superliked, { type: 'undo' });
+  assert.deepEqual(appReactions(undone.history), { first: 'like' });
+  const passed = react(preview, 'pass', 'first');
+  assert.deepEqual(passed.queue, ['second', 'third', 'first']);
+  assert.deepEqual(appReactions(passed.history), { first: 'pass' });
+});
+
+test('selecting an unmatched app brings it forward and a one-card deck safely cycles', () => {
+  const selected = reactionReducer(createInitialState(['first', 'second', 'third']), { type: 'select', appId: 'third' });
+  assert.deepEqual(selected.queue, ['third', 'first', 'second']);
+  const passed = react(createInitialState(['only']), 'pass', 'only');
+  assert.deepEqual(passed.queue, ['only']);
+  assert.equal(passed.currentAppId, 'only');
+  assert.deepEqual(createInitialState([]).queue, []);
+  assert.equal(createInitialState([]).currentAppId, null);
 });
 
 test('navigation resolves all five links and falls back to Home', () => {
