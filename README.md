@@ -103,6 +103,61 @@ npm run dev
 
 Open the URL printed by Vite, normally `http://127.0.0.1:5173`. Run `npm run build` to create `dist/`, then `npm run preview` to preview the production build.
 
+## Build and record a product tour
+
+With `npm run dev` running, open `/tour-builder.html` on the printed server address. This local-only editor is excluded from the production build. Drag instructions into the sequence and drag handles to reorder, or use the Add, Up, Down, and Remove buttons. Edit project/contact selectors and wait durations, then download `tour.txt`. The preview is the exact text exported. Drafts live only in the current tab; download before closing.
+
+Save the text file in the repository and run:
+
+```sh
+npm run demo -- tour.txt
+# Or use the included example and a different dev server address:
+npm run demo -- tours/example.txt --url http://127.0.0.1:5174/
+```
+
+The default app address is `http://127.0.0.1:5173/`. Install Chromium with `npx playwright install chromium` if it is missing. The recorder uses the existing Playwright installation; no AI service or additional package is required.
+
+Each run starts a fresh Chromium session and saves a 440 × 956 WebM under ignored `recordings/`, printing its unique path. Card swipes are real drags, animations remain enabled, and actions wait for transitions, match celebrations, and visible images before a 700 ms reading pause. Explicit waits use exactly their requested duration. Startup/loading frames may appear in the video.
+
+External website controls are clicked, their initial destinations checked against `content.json`, and their new tabs closed. External responses are stubbed: the video stays on the portfolio, with no external website footage. Email clicks are checked and prevented from launching a mail application. The runner expects the target portfolio to use this checkout’s configured dataset.
+
+Invalid syntax fails before Chromium launches. An unavailable action stops at its source line, exits unsuccessfully, and saves any partial recording. The builder checks required fields and the initial Open app instruction; it does not simulate whether a future action will be possible. Check the notes before composing a tour.
+
+### Instruction lexicon
+
+Use one instruction per line; blank lines are ignored and command phrases are case-insensitive. Names are case-sensitive and quoted as JSON strings, so embedded quotes and backslashes must be escaped. The palette and recorder share `tools/tours/lexicon.js` as their source of truth.
+
+| Instruction | Behavior / starting state |
+| --- | --- |
+| `Open app` | Required first instruction. Reload Home and reset reactions; also resets mid-tour. |
+| `Swipe left` / `Swipe right` | Home with a current card: visibly drag to pass or match. |
+| `Click Undo` | Home with a previous decision: restore it. |
+| `Click Pass` / `Click Like` | Home with a current card: pass or match through the control. |
+| `Click Superlike` | Home with a website link: match and check/close its external tab. |
+| `Click Share` | Home with a repository link: check/close its external tab, without reacting. |
+| `Open Home` / `Open Browser` / `Open Likes` / `Open Chats` / `Open Profile` | Navigate through the bottom controls. |
+| `Open project "Name"` | Open Browser and select the uniquely named configured project. |
+| `Open first conversation` | Chats with at least one match: enter its first thread. |
+| `Open conversation "Name"` | Chats: enter the uniquely named existing match. |
+| `Click link to author` | Inside a conversation: follow its author link to Profile. |
+| `Click contact "Label"` | Profile: click a uniquely labeled configured contact and check/close its tab. |
+| `Click email` | Profile with a configured email: check/click without launching mail. |
+| `Scroll down` / `Scroll up` | Scroll the visible page or Home card bio by half its height; fails at its boundary. |
+| `Go back` | Return to a prior portfolio page visited since the most recent Open app. |
+| `Wait N seconds` | Pause for a positive duration up to 60 seconds; decimals are supported. |
+
+Aliases: `Open Chat` means `Open Chats`; `Swipe right on the next card` means `Swipe right` on the currently shown card, without skipping a card. Missing or ambiguous targets fail rather than guessing.
+
+To check the editor and recording pipeline after building, run:
+
+```sh
+npm test
+npm run build
+TEST_URL=http://127.0.0.1:5173/ npm run test:tour
+```
+
+The integration check exercises drag/drop, keyboard alternatives, parameter validation, text downloads, responsive layout, playback, external controls, browser history, partial recordings, and production exclusion. It uses the populated sample dataset. Recordings contain the webpage only; MP4 conversion, narration, synthetic pointers, and zoom effects are not included.
+
 ## Vercel deployment
 
 Import your cloned repository into your own Vercel account. Use the Vite framework preset, `npm run build`, and the `dist` output directory. Configure your domain there and set `site.url` and `site.image` in `content.json` to its public URLs.
