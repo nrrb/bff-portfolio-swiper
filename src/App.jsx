@@ -106,10 +106,6 @@ export default function App() {
               <span className="likes-you"><Icon name="compass" />{app.category}</span>
               <h1 id="app-name">{app.name} {app.year && <span className="age">{app.year.slice(-2)}</span>}</h1>
               <p className="app-description">{app.description}</p>
-              <div className="project-links">
-                {app.websiteUrl && <a href={app.websiteUrl} target="_blank" rel="noreferrer">{app.linkLabel || 'Visit project'} ↗</a>}
-                <a href={app.githubUrl} target="_blank" rel="noreferrer">Source ↗</a>
-              </div>
             </div>
           </article>
           <div className="actions" role="group" aria-label="App actions">

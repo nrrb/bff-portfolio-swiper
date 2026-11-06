@@ -118,6 +118,8 @@ test('React renders five views, the five action controls, and correct navigation
   assert.equal(sections.length, 5);
   assert.equal(sections.filter(section => !section.includes('hidden')).length, 1);
   assert.ok(sections.find(section => section.includes('view-home') && !section.includes('hidden')));
+  const home = html.match(/<section id="view-home"[\s\S]*?<\/section>/)[0];
+  assert.doesNotMatch(home, /<a\b/, 'App cards should not contain Visit project or Source links');
   assert.match(html, /aria-current="page"/);
   assert.doesNotMatch(html, /<dialog|99\+/);
   assert.match(html, /Nicholas Bennett/);
