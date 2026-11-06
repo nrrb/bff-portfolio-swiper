@@ -48,7 +48,7 @@ The shared viewport clips moving cards and cannot scroll, so translated or rotat
 
 The deck is an ordered queue. Passing puts an app at the bottom so all other queued apps appear before it returns. Likes and superlikes create matches, leave the swipe queue, and appear in Chats. Undo restores the previous decision and exact queue order. Matching every app shows a link to Chats; passing the final unmatched app safely cycles that one card. Browser can still preview any app without automatically putting an existing match back in the queue.
 
-Likes and superlikes also show a centered “You matched!” box with the app’s name. It zooms in over 0.25 seconds, holds for 1.5 seconds, and zooms out over 0.25 seconds. It never blocks controls; a new decision replaces it, and Undo clears it. Reduced-motion preferences use a fade without scaling. The footer continues to announce decisions to screen readers.
+Likes and superlikes also show a centered “You matched!” box with the app’s name. It zooms in over 0.25 seconds, holds for 1.5 seconds, and zooms out over 0.25 seconds. It never blocks controls; a new decision replaces it, and Undo clears it. Reduced-motion preferences use a fade without scaling. A visually hidden status region announces decisions to screen readers without a visible footer.
 
 Every app has already liked the visitor: Likes You lists undecided apps, and its navigation badge shows the number of apps in that list, including zero when none remain. Superlike also opens the shown app’s website in a new tab while its card exits to the right; it is disabled when there is no public website URL. Share opens the shown app’s GitHub repository in a new tab and keeps the same card selected.
 
@@ -56,7 +56,7 @@ Chats lists matched apps once each. Selecting a conversation opens a playful sam
 
 Project cards use the captured homepage images, and lists use the same images as thumbnails. Dancefloor Bass Analyzer has no public website URL and displays a labeled fallback.
 
-Profile uses a fixed personal card with only the park photo, a gold “THE AUTHOR” pill, and contact links in the bio area. It shares the swipe cards’ dimensions and text-position rules, but never enters the app-matching deck. The card is rendered by `src/AuthorCard.jsx`.
+Profile uses a fixed personal card with only the park photo, a gold “THE AUTHOR” pill, and contact links in the bio area. It shares the swipe cards’ dimensions, with its text lowered to leave more of the face visible, and never enters the app-matching deck. The card is rendered by `src/AuthorCard.jsx`.
 
 The served park photo in `public/author-photos/` is a 1320 × 1760 WebP, preserving the original aspect ratio within the iPhone 16 Pro Max’s 1320px screen width. It is 223 KB instead of the original 1.73 MB. Original camera files are retained locally under the ignored `source-assets/author-photos/` directory and are not included in the website build.
 
@@ -79,6 +79,6 @@ To refresh just one project, pass its slug or GitHub repository name: `npm run s
 
 Run `npm test` for app-specific reaction history and undo, navigation, external project links, contact links, React-rendered view/SVG checks, and screenshot file checks.
 
-With the dev server running, use `TEST_URL=http://127.0.0.1:5173 npm run test:e2e` (adjust the URL to the server’s printed address). Playwright checks the views, matches, contacts, years, external links, and screenshots, then exercises real desktop mouse drags and emulated mobile touch gestures. Swipe checks cover rotation, the blurred next card, short/cancelled/vertical gestures, a complete queue cycle, matched apps staying out, undo, the final card, empty decks, reduced motion, and a full mobile viewport. Profile checks cover the single photo, shared card/copy positions, and the personal card staying fixed without changing the app deck. External destinations are stubbed during navigation tests. Visual QA images are written under `/private/tmp/`.
+With the dev server running, use `TEST_URL=http://127.0.0.1:5173 npm run test:e2e` (adjust the URL to the server’s printed address). Playwright checks the views, matches, contacts, years, external links, and screenshots, then exercises real desktop mouse drags and emulated mobile touch gestures. Swipe checks cover rotation, the blurred next card, short/cancelled/vertical gestures, a complete queue cycle, matched apps staying out, undo, the final card, empty decks, reduced motion, and a full mobile viewport. Profile checks cover the single photo, shared card dimensions, lowered profile text, and the personal card staying fixed without changing the app deck. External destinations are stubbed during navigation tests. Visual QA images are written under `/private/tmp/`.
 
 The production build, unit/render tests, and Playwright checks pass. Browser checks use Chromium mobile emulation; physical iPhone Safari has not been tested.

@@ -129,7 +129,7 @@ try {
   const appBounds = await desktop.locator('[data-front]').boundingBox();
   const copyPosition = await desktop.locator('[data-front] .profile-copy').evaluate(copy => {
     const style = getComputedStyle(copy);
-    return [style.left, style.right, style.bottom, style.maxHeight];
+    return [style.left, style.right, style.maxHeight];
   });
   await desktop.getByRole('link', { name: 'Profile', exact: true }).click();
   await desktop.locator('.author-card').waitFor({ state: 'visible' });
@@ -137,8 +137,9 @@ try {
   assert.deepEqual(authorBounds, appBounds);
   assert.deepEqual(await desktop.locator('.author-copy').evaluate(copy => {
     const style = getComputedStyle(copy);
-    return [style.left, style.right, style.bottom, style.maxHeight];
+    return [style.left, style.right, style.maxHeight];
   }), copyPosition);
+  assert.equal(await desktop.locator('.author-copy').evaluate(copy => getComputedStyle(copy).bottom), '16px');
   await startMouseDrag(desktop, -authorBounds.width * .8, '.author-photo');
   await desktop.mouse.up();
   assert.deepEqual(await desktop.locator('.author-card').boundingBox(), authorBounds);
@@ -209,7 +210,7 @@ try {
   await mobile.getByRole('link', { name: 'Home', exact: true }).click();
   await settled(mobile, ids[2]);
   assert.deepEqual(errors, []);
-  console.log('Passed: desktop/touch swipes, clipped exits, deck/match/undo edge cases, reduced motion, and single-photo author card, shared card/copy positions, bio links, fixed card boundaries, and unchanged app deck.');
+  console.log('Passed: desktop/touch swipes, clipped exits, deck/match/undo edge cases, reduced motion, and single-photo author card, lowered profile text, bio links, fixed card boundaries, and unchanged app deck.');
 } finally {
   await browser.close();
 }

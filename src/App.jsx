@@ -165,7 +165,7 @@ export default function App() {
           </a>
         ))}
       </nav>
-      <p className="status" role="status">{state.status}</p>
+      <span className="sr-only" role="status">{state.status}</span>
       {match && (
         <div className="match-celebration" aria-hidden="true">
           <div key={match.key} className="match-popup" onAnimationEnd={event => {
