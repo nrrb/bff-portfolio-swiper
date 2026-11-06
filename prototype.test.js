@@ -203,17 +203,19 @@ test('contact details render working links and an honest empty state', () => {
   assert.doesNotMatch(empty, /href=/);
 });
 
-test('personal profile uses three small WebP photos without swipe-away controls', async () => {
+test('personal profile uses only the park photo with author pill and bio links', async () => {
   const html = renderToStaticMarkup(React.createElement(components.default));
   const profile = html.match(/<section id="view-profile"[\s\S]*?<\/section>/)[0];
-  assert.match(profile, /class="author-card"/);
-  assert.match(profile, /aria-roledescription="carousel"/);
-  assert.match(profile, /aria-label="Previous photo"/);
-  assert.match(profile, /aria-label="Next photo"/);
-  assert.doesNotMatch(profile, /swipe-deck|front-card|aria-label="Like"|aria-label="Pass"/);
-  assert.ok(profile.includes(`mailto:${owner.email}`));
+  assert.match(profile, /class="author-card card"/);
+  assert.match(profile, /class="profile-copy author-copy"/);
+  assert.match(profile, /class="likes-you">[\s\S]*?THE AUTHOR<\/span>/);
+  assert.doesNotMatch(profile, /carousel|photo-arrow|photo-counter|swipe-deck|front-card|aria-label="Like"|aria-label="Pass"/);
+  const bio = profile.match(/<div class="app-description">[\s\S]*?<\/div>/)[0];
+  assert.ok(bio.includes(`mailto:${owner.email}`));
+  for (const { url } of owner.links) assert.ok(bio.includes(`href="${url}"`));
   const images = [...profile.matchAll(/src="(\/author-photos\/[^\"]+\.webp)"/g)];
-  assert.equal(images.length, 3);
+  assert.equal(images.length, 1);
+  assert.equal(images[0][1], '/author-photos/smiling_sun_beard_park.webp');
   let bytes = 0;
   for (const [, source] of images) {
     const image = await readFile(new URL(`./public${source}`, import.meta.url));
@@ -221,7 +223,7 @@ test('personal profile uses three small WebP photos without swipe-away controls'
     assert.equal(image.toString('ascii', 8, 12), 'WEBP');
     bytes += image.length;
   }
-  assert.ok(bytes < 500000, 'Profile photos should stay below 500 KB combined');
+  assert.ok(bytes < 250000, 'Profile photo should stay below 250 KB');
 });
 
 test('all supplied projects have stable IDs and verified screenshot files or an explicit fallback', async () => {

@@ -38,13 +38,6 @@ async function noSwipeScrollbars(page) {
   assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth && document.documentElement.scrollHeight <= innerHeight));
 }
 
-async function photoAt(page, index) {
-  await page.waitForFunction(index => {
-    const track = document.querySelector('.author-photo-track');
-    return Math.abs(track.scrollLeft - index * track.clientWidth) < 1;
-  }, index);
-  assert.equal(await page.locator('.photo-counter').innerText(), `${index + 1} / 3`);
-}
 
 try {
   const desktop = await browser.newPage({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'no-preference' });
@@ -130,22 +123,25 @@ try {
   await desktop.getByRole('button', { name: 'Pass', exact: true }).press('Enter');
   assert.equal(await desktop.locator('.swipe-deck').getAttribute('data-phase'), 'exit');
   await settled(desktop, ids[1]);
+  const appBounds = await desktop.locator('[data-front]').boundingBox();
+  const copyPosition = await desktop.locator('[data-front] .profile-copy').evaluate(copy => {
+    const style = getComputedStyle(copy);
+    return [style.left, style.right, style.bottom, style.maxHeight];
+  });
   await desktop.getByRole('link', { name: 'Profile', exact: true }).click();
   await desktop.locator('.author-card').waitFor({ state: 'visible' });
   const authorBounds = await desktop.locator('.author-card').boundingBox();
-  await startMouseDrag(desktop, -authorBounds.width * .8, '.author-photo-track');
+  assert.deepEqual(authorBounds, appBounds);
+  assert.deepEqual(await desktop.locator('.author-copy').evaluate(copy => {
+    const style = getComputedStyle(copy);
+    return [style.left, style.right, style.bottom, style.maxHeight];
+  }), copyPosition);
+  await startMouseDrag(desktop, -authorBounds.width * .8, '.author-photo');
   await desktop.mouse.up();
-  await photoAt(desktop, 1);
   assert.deepEqual(await desktop.locator('.author-card').boundingBox(), authorBounds);
-  await desktop.getByRole('button', { name: 'Next photo', exact: true }).click();
-  await photoAt(desktop, 2);
-  assert.ok(await desktop.getByRole('button', { name: 'Next photo', exact: true }).isDisabled());
-  await desktop.locator('.author-photo-track').focus();
-  await desktop.keyboard.press('ArrowLeft');
-  await photoAt(desktop, 1);
-  await desktop.getByRole('button', { name: 'Show photo 1 of 3', exact: true }).click();
-  await photoAt(desktop, 0);
-  assert.ok(await desktop.getByRole('button', { name: 'Previous photo', exact: true }).isDisabled());
+  assert.equal(await desktop.locator('#view-profile img').count(), 1);
+  assert.equal(await desktop.locator('#view-profile .likes-you').innerText(), 'THE AUTHOR');
+  assert.equal(await desktop.locator('#view-profile button').count(), 0);
   await desktop.getByRole('link', { name: 'Home', exact: true }).click();
   await settled(desktop, ids[1]);
 
@@ -158,8 +154,8 @@ try {
   const cdp = await context.newCDPSession(mobile);
   async function touchDrag(dx, dy = 0, selector = '[data-front]') {
     const box = await mobile.locator(selector).boundingBox();
-    const x = box.x + box.width * (selector === '.author-photo-track' ? .8 : .5);
-    const y = selector === '.author-photo-track' ? box.y + 140 : selector === '[data-front]' ? box.y + 100 : box.y + box.height / 2;
+    const x = box.x + box.width / 2;
+    const y = selector === '.author-photo' ? box.y + 140 : selector === '[data-front]' ? box.y + 100 : box.y + box.height / 2;
     await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y, id: 1 }] });
     for (let step = 1; step <= 6; step++) {
       await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: x + dx * step / 6, y: y + dy * step / 6, id: 1 }] });
@@ -195,23 +191,22 @@ try {
   await mobile.getByRole('link', { name: 'Profile', exact: true }).click();
   await mobile.locator('.author-card').waitFor({ state: 'visible' });
   const mobileAuthorBounds = await mobile.locator('.author-card').boundingBox();
-  for (const index of [1, 2, 2]) {
-    await touchDrag(-mobileAuthorBounds.width * .65, 0, '.author-photo-track');
+  for (const direction of [-1, 1]) {
+    await touchDrag(direction * mobileAuthorBounds.width * .4, 0, '.author-photo');
     await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
-    await photoAt(mobile, index);
   }
   assert.deepEqual(await mobile.locator('.author-card').boundingBox(), mobileAuthorBounds);
   assert.equal(new URL(mobile.url()).hash, '#profile');
-  assert.equal(await mobile.locator('.author-photo-track img').count(), 3);
-  assert.ok(await mobile.locator('.author-photo-track img').evaluateAll(images => images.every(image => image.naturalWidth === 1320 && image.naturalHeight === 1760)));
+  assert.equal(await mobile.locator('#view-profile img').count(), 1);
+  await mobile.waitForFunction(() => document.querySelector('.author-photo')?.naturalWidth === 1320);
+  assert.deepEqual(await mobile.locator('.author-photo').evaluate(image => [image.naturalWidth, image.naturalHeight]), [1320, 1760]);
+  assert.equal(await mobile.locator('#view-profile .likes-you').innerText(), 'THE AUTHOR');
   assert.ok(await mobile.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
-  await mobile.getByRole('button', { name: 'Show photo 1 of 3', exact: true }).click();
-  await photoAt(mobile, 0);
   await mobile.screenshot({ path: '/private/tmp/bff-author-profile.png' });
   await mobile.getByRole('link', { name: 'Home', exact: true }).click();
   await settled(mobile, ids[2]);
   assert.deepEqual(errors, []);
-  console.log('Passed: desktop/touch swipes, clipped exits, deck/match/undo edge cases, reduced motion, and profile photo dragging, snapping, keyboard/buttons, compressed image dimensions, fixed card boundaries, and unchanged app deck.');
+  console.log('Passed: desktop/touch swipes, clipped exits, deck/match/undo edge cases, reduced motion, and single-photo author card, shared card/copy positions, bio links, fixed card boundaries, and unchanged app deck.');
 } finally {
   await browser.close();
 }

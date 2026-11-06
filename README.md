@@ -54,9 +54,9 @@ Chats lists matched apps once each. Selecting a conversation opens a playful sam
 
 Project cards use the captured homepage images, and lists use the same images as thumbnails. Dancefloor Bass Analyzer has no public website URL and displays a labeled fallback.
 
-Profile uses a fixed personal card with the author’s photo gallery, current bio, and contact links. Photos scroll horizontally with native touch gestures, mouse dragging, arrow keys, or the photo controls. The card itself stays in place and never enters the app-matching deck. Gallery behavior is in `src/AuthorCard.jsx`.
+Profile uses a fixed personal card with only the park photo, a gold “THE AUTHOR” pill, and contact links in the bio area. It shares the swipe cards’ dimensions and text-position rules, but never enters the app-matching deck. The card is rendered by `src/AuthorCard.jsx`.
 
-The three served photos in `public/author-photos/` are 1320 × 1760 WebPs, preserving the original aspect ratio within the iPhone 16 Pro Max’s 1320px screen width. Together they are 461 KB instead of the original 4.43 MB (about 90% smaller). Original camera files are retained locally under the ignored `source-assets/author-photos/` directory and are not included in the website build.
+The served park photo in `public/author-photos/` is a 1320 × 1760 WebP, preserving the original aspect ratio within the iPhone 16 Pro Max’s 1320px screen width. It is 223 KB instead of the original 1.73 MB. Original camera files are retained locally under the ignored `source-assets/author-photos/` directory and are not included in the website build.
 
 Reactions and matches stay available while navigating between views and reset on reload. A thread for an unavailable match returns to the Chats list with an explanation. External project links open with `noopener noreferrer`.
 
@@ -77,6 +77,6 @@ To refresh just one project, pass its slug or GitHub repository name: `npm run s
 
 Run `npm test` for app-specific reaction history and undo, navigation, external project links, contact links, React-rendered view/SVG checks, and screenshot file checks.
 
-With the dev server running, use `TEST_URL=http://127.0.0.1:5173 npm run test:e2e` (adjust the URL to the server’s printed address). Playwright checks the views, matches, contacts, years, external links, and screenshots, then exercises real desktop mouse drags and emulated mobile touch gestures. Swipe checks cover rotation, the blurred next card, short/cancelled/vertical gestures, a complete queue cycle, matched apps staying out, undo, the final card, empty decks, reduced motion, and a full mobile viewport. Profile checks cover mouse/touch photo navigation, keyboard and buttons, image dimensions, and the personal card staying fixed without changing the app deck. External destinations are stubbed during navigation tests. Visual QA images are written under `/private/tmp/`.
+With the dev server running, use `TEST_URL=http://127.0.0.1:5173 npm run test:e2e` (adjust the URL to the server’s printed address). Playwright checks the views, matches, contacts, years, external links, and screenshots, then exercises real desktop mouse drags and emulated mobile touch gestures. Swipe checks cover rotation, the blurred next card, short/cancelled/vertical gestures, a complete queue cycle, matched apps staying out, undo, the final card, empty decks, reduced motion, and a full mobile viewport. Profile checks cover the single photo, shared card/copy positions, and the personal card staying fixed without changing the app deck. External destinations are stubbed during navigation tests. Visual QA images are written under `/private/tmp/`.
 
 The production build, unit/render tests, and Playwright checks pass. Browser checks use Chromium mobile emulation; physical iPhone Safari has not been tested.

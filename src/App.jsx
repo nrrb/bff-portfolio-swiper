@@ -142,10 +142,9 @@ export default function App() {
         </section>
         <section id="view-profile" className="page-view author-profile" aria-labelledby="owner-name" hidden={view !== 'profile'}>
           <AuthorCard name={owner.name}>
-            <p className="eyebrow">THE PERSON BEHIND THE APPS</p>
+            <span className="likes-you"><Icon name="heart" />THE AUTHOR</span>
             <h1 id="owner-name">{owner.name}</h1>
-            <p className="page-intro">Thanks for exploring my work! Hire me and I'll help celebrate your apps too.</p>
-            <ContactDetails person={owner} />
+            <div className="app-description"><ContactDetails person={owner} /></div>
           </AuthorCard>
         </section>
       </div>

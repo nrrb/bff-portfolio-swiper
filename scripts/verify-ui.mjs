@@ -124,7 +124,7 @@ try {
     assert.equal(await page.locator(`#view-profile a[href="${url}"]`).count(), 1);
   }
   assert.ok(await page.locator('#view-profile').isVisible());
-  await page.waitForFunction(() => document.querySelector('.author-photo-track img')?.naturalWidth === 1320);
+  await page.waitForFunction(() => document.querySelector('.author-photo')?.naturalWidth === 1320);
   await page.screenshot({ path: '/private/tmp/bff-profile.png' });
   await page.goBack();
   await page.waitForURL(`**/#chats/${projectId(projects[0])}`);
