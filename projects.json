@@ -6,7 +6,7 @@
     "description": "I know every red flag in the book. Still need flashcards. Swipe right and test me.",
     "slug": "mitre-attack-flashcards",
     "label": "Independent cybersecurity learning project",
-    "problem": "Learning a security framework takes more than memorizing names. I wanted a way to explore ATT&CK techniques and sub-techniques alongside security events and threat detection concepts.",
+    "problem": "I wanted a way to practice and learn about MITRE ATT&CK techniques and sub-techniques in my spare time, using the best methods available for self-directed learning. I can pick this up for as short as 30 seconds and get something out of it, and the built-in tracking helps me see progress over time.",
     "role": "I independently built the learning application as a way to deepen my cybersecurity understanding and make the material easier to revisit.",
     "decisions": [
       {
@@ -38,10 +38,10 @@
     "name": "Tiny Goose Club",
     "websiteUrl": "https://tinygoose.club/",
     "githubUrl": "https://github.com/nrrb/tinygoose.club",
-    "description": "Baltimore. Bring your unfinished projects. I’ll introduce you to my friends and honk at you affectionately.",
+    "description": "A quiet space for people to feel safe to make things at any skill level, talk or not, and get excited with some good old fashioned show-and-tell. I wanted a space like this and din't find one, so I made it myself.",
     "slug": "tiny-goose-club",
     "label": "Community organizing & creative meetup",
-    "problem": "Making time for a creative project can be easier with company. Tiny Goose Club gives people in Baltimore a regular public meetup where they can bring something to work on and get to know one another.",
+    "problem": "Making time for a creative project can be easier with company, especially for neurodivergent people. Tiny Goose Club gives creatives in Baltimore a regular public meetup where they can bring something to work on and get to know one another.",
     "role": "I organize and host the biweekly meetup, and built its website to share event information, expectations, and RSVP links.",
     "decisions": [
       {
@@ -74,7 +74,7 @@
     "name": "Medium Talk",
     "websiteUrl": "https://mediumtalk.org/",
     "githubUrl": "https://github.com/nrrb/mediumtalk",
-    "description": "Skip “hey.” Ask me something that ruins small talk forever. Bonus points if we end up on a picnic blanket.",
+    "description": "Enjoying conversational card games, I wanted a way to bring that experience to strangers meeting in a public setting. Medium Talk is a conversation app I built to support a public picnic I hosted in Baltimore.",
     "slug": "medium-talk",
     "label": "Independent community project",
     "problem": "Strangers meeting at a public picnic need a starting point for conversation. I hosted the event through Meetup in a Baltimore park and built an app to support getting to know one another.",
@@ -124,7 +124,7 @@
     "name": "OG Blacman",
     "websiteUrl": "https://www.ogblacman.com/",
     "githubUrl": "https://github.com/nrrb/ogblacman",
-    "description": "Come for the music. Stay because I look this good on your phone.",
+    "description": "The official website for OG Blacman, a musician and artist.",
     "slug": "og-blacman",
     "label": "Artist website",
     "problem": "An artist’s website needs to express a distinctive identity while giving visitors a way to explore music and media on the device they have with them.",
@@ -171,7 +171,7 @@
     "name": "Kellogg Board Fellows Optimizer",
     "websiteUrl": "https://kbfmatcher.surge.sh/",
     "githubUrl": "https://github.com/nrrb/internship-matcher",
-    "description": "I match ambitious people with board seats. You can call me a career move. Please don’t put “networking” in your bio.",
+    "description": "I built a tool to match MBA students to ranked corporate board internship spots in a mathematically-optimal way, saving an administrator hours of manual work, and providing proof to students that the matching was fair and unbiased.",
     "slug": "kellogg-board-fellows-optimizer",
     "label": "Original tool / independent refresh planned",
     "problem": "The original organizational task was to match fellows to placements using ranked preferences. A matching tool provides a way to work through those preferences and produce placement results.",
@@ -198,8 +198,6 @@
       }
     ],
     "contentTodos": [
-      "TODO_CONTENT: Confirm my original contribution boundaries and organizational collaborators.",
-      "TODO_CONTENT: Document the original preference-input format, matching rules, and export behavior."
     ],
     "contact": "Working through preferences or placement data by hand? Tell me about the rules and the output you need.",
     "originalSource": "https://github.com/nukellogg/kbfmatcher",
@@ -236,7 +234,6 @@
       }
     ],
     "contentTodos": [
-      "TODO_CONTENT: Verify image input, scale and paper settings, preview controls, and export format."
     ],
     "contact": "Have a repetitive image or document task? Tell me about your inputs and the finished output you need.",
     "firstCommitDate": "2025-03-12T16:16:10Z"
@@ -274,7 +271,6 @@
       }
     ],
     "contentTodos": [
-      "TODO_CONTENT: Confirm the analysis fields, database fields, setup requirements, and supported versions before publishing usage instructions. No compatibility or performance guarantees are supplied."
     ],
     "contact": "Need a custom tool to fit an existing workflow? Tell me where your data lives and how you want to use it.",
     "firstCommitDate": "2026-09-01T13:58:34Z"
