@@ -9,12 +9,22 @@ const browser = await chromium.launch({ channel: 'chromium' });
 try {
   const device = devices['iPhone 16 Pro Max'];
   const context = await browser.newContext({ ...device, viewport: device.screen });
+  await context.route(url => url.origin !== new URL(base).origin, route => route.fulfill({ contentType: 'text/html', body: '<title>Project destination</title>' }));
   const page = await context.newPage();
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   await page.goto(base);
   await page.getByRole('link', { name: 'Browser', exact: true }).click();
   assert.equal(await page.locator('#view-browser .app-row').count(), projects.length);
+  const openExternalControl = async (label, url) => {
+    const opened = context.waitForEvent('page');
+    await page.getByRole('link', { name: label, exact: true }).click();
+    const tab = await opened;
+    await tab.waitForLoadState('domcontentloaded');
+    assert.equal(tab.url(), url);
+    assert.equal(await tab.evaluate(() => window.opener), null);
+    await tab.close();
+  };
   const openApp = async name => {
     await page.getByRole('link', { name: 'Browser', exact: true }).click();
     await page.locator('#view-browser .app-row').filter({ hasText: name }).click();
@@ -23,6 +33,17 @@ try {
     const project = projects.find(project => project.name === name);
     assert.equal(await page.locator('#app-name .age').innerText(), project.firstCommitDate.slice(2, 4));
     assert.equal(await page.locator('#view-home .profile-copy a').count(), 0);
+    const website = page.locator('.actions .superlike');
+    if (project.websiteUrl) {
+      assert.equal(await website.getAttribute('href'), project.websiteUrl);
+      assert.equal(await website.getAttribute('target'), '_blank');
+    } else {
+      assert.ok(await website.isDisabled());
+      await openExternalControl('Share', project.githubUrl);
+      assert.ok((await page.locator('#app-name').innerText()).includes(name));
+    }
+    assert.equal(await page.locator('.actions .share').getAttribute('href'), project.githubUrl);
+    assert.equal(await page.locator('.actions .share').getAttribute('target'), '_blank');
   };
   for (const project of projects) await openApp(project.name);
   await openApp(projects[0].name);
@@ -31,13 +52,17 @@ try {
   await page.waitForFunction(() => document.querySelector('#view-home .screenshot-artwork img')?.naturalWidth === 1320);
   assert.deepEqual(await picture.evaluate(img => [img.naturalWidth, img.naturalHeight]), [1320, 2868]);
   await page.screenshot({ path: '/private/tmp/bff-home.png' });
+  await openExternalControl('Share', projects[0].githubUrl);
+  assert.ok((await page.locator('#app-name').innerText()).includes(projects[0].name));
   await page.getByRole('button', { name: 'Like', exact: true }).click();
   await page.getByRole('link', { name: 'Likes', exact: true }).click();
   assert.equal(await page.locator('.phone').evaluate(phone => phone.scrollTop), 0);
   assert.equal(await page.locator('#view-likes .app-row').count(), 1);
   assert.match(await page.locator('#view-likes').innerText(), /Liked/);
   await openApp(projects[1].name);
-  await page.getByRole('button', { name: 'Superlike', exact: true }).click();
+  await openExternalControl('Superlike', projects[1].websiteUrl);
+  assert.ok((await page.locator('#app-name').innerText()).includes(projects[1].name));
+  await openExternalControl('Share', projects[1].githubUrl);
   await page.getByRole('link', { name: 'Likes', exact: true }).click();
   assert.equal(await page.locator('#view-likes .app-row').count(), 2);
   assert.match(await page.locator('#view-likes').innerText(), /Superliked/);

@@ -2,7 +2,6 @@ export const reactionLabels = { pass: 'PASS', superlike: 'SUPER LIKE', like: 'LI
 export const initialState = { history: [], currentAppId: null, status: 'Explore the apps · likes last until you reload' };
 
 export function reactionReducer(state, action) {
-  if (action.type === 'status') return { ...state, status: action.message };
   if (action.type === 'select') return { ...state, currentAppId: action.appId };
   if (action.type === 'undo') {
     const last = state.history.at(-1);
@@ -24,17 +23,4 @@ export function reactionReducer(state, action) {
 
 export function appReactions(history) {
   return Object.fromEntries(history.map(({ appId, type }) => [appId, type]));
-}
-
-export async function shareProfile(data, browser = navigator) {
-  try {
-    if (browser.share) {
-      await browser.share(data);
-      return 'Share dialog completed';
-    }
-    await browser.clipboard.writeText(data.url);
-    return 'Prototype link copied · accessible on this computer';
-  } catch (error) {
-    return error.name === 'AbortError' ? 'Share canceled' : 'Could not share. Copy the address from your browser.';
-  }
 }

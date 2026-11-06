@@ -1,6 +1,6 @@
 import React, { useReducer, useSyncExternalStore } from 'react';
 import icons from '../icons.svg?no-inline';
-import { initialState, reactionReducer, appReactions, shareProfile } from './actions.js';
+import { initialState, reactionReducer, appReactions } from './actions.js';
 import { apps, owner } from './data.js';
 import { views, currentView, subscribeToNavigation } from './navigation.js';
 
@@ -83,13 +83,8 @@ export default function App() {
   const likedApps = apps.filter(item => ['like', 'superlike'].includes(reactions[item.id]));
   const selectApp = appId => dispatch({ type: 'select', appId });
 
-  async function handleAction(action) {
-    if (action === 'share') {
-      const message = await shareProfile({ title: app.name, url: new URL('#home', location.href).href });
-      dispatch({ type: 'status', message });
-    } else {
-      dispatch({ type: action, appId: app.id, name: app.name, nextAppId: apps[(currentIndex + 1) % apps.length].id });
-    }
+  function handleAction(action) {
+    dispatch({ type: action, appId: app.id, name: app.name, nextAppId: action === 'superlike' ? app.id : apps[(currentIndex + 1) % apps.length].id });
   }
 
   return (
@@ -109,12 +104,27 @@ export default function App() {
             </div>
           </article>
           <div className="actions" role="group" aria-label="App actions">
-            {actions.map(({ action, label, icon, large }) => (
-              <button key={action} className={`action ${action}${large ? ' large' : ''}`}
-                onClick={() => handleAction(action)} aria-label={label} title={label}>
-                <Icon name={icon} />
-              </button>
-            ))}
+            {actions.map(({ action, label, icon, large }) => {
+              const href = action === 'superlike' ? app.websiteUrl : action === 'share' ? app.githubUrl : null;
+              const className = `action ${action}${large ? ' large' : ''}`;
+              if (href) {
+                const description = `Opens the project’s ${action === 'superlike' ? 'website' : 'GitHub repository'} in a new tab`;
+                return (
+                  <a key={action} className={className} href={href} target="_blank" rel="noopener noreferrer"
+                    onClick={action === 'superlike' ? () => handleAction(action) : undefined}
+                    aria-label={label} aria-description={description} title={description}>
+                    <Icon name={icon} />
+                  </a>
+                );
+              }
+              return (
+                <button key={action} className={className} onClick={() => handleAction(action)}
+                  disabled={action === 'superlike' || action === 'share'} aria-label={label}
+                  title={action === 'superlike' ? 'No public website available' : label}>
+                  <Icon name={icon} />
+                </button>
+              );
+            })}
           </div>
         </section>
         <section id="view-browser" className="page-view" aria-labelledby="browser-title" hidden={view !== 'browser'}>

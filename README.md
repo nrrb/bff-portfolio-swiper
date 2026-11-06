@@ -11,7 +11,7 @@ npm run dev
 
 Open the local URL printed by Vite (normally http://127.0.0.1:5173). Run `npm run build` for the production output in `dist/`, then `npm run preview` to preview that build.
 
-The app entry point is `src/main.jsx`, the interface is `src/App.jsx`, reaction/share logic is in `src/actions.js`, and navigation is in `src/navigation.js`. The 35 projects come from `projects.json`; `src/data.js` adds stable IDs, screenshot references, and the owner’s contact information. Every project has a `firstCommitDate`; the eight originally missing dates were verified against the earliest commits on GitHub. Cards show the final two digits of that year as the project’s “age.” Vite bundles the SVG sprite with the app.
+The app entry point is `src/main.jsx`, the interface is `src/App.jsx`, reaction logic is in `src/actions.js`, and navigation is in `src/navigation.js`. The 35 projects come from `projects.json`; `src/data.js` adds stable IDs, screenshot references, and the owner’s contact information. Every project has a `firstCommitDate`; the eight originally missing dates were verified against the earliest commits on GitHub. Cards show the final two digits of that year as the project’s “age.” Vite bundles the SVG sprite with the app.
 
 ## Icons
 
@@ -40,11 +40,11 @@ The prototype uses original, reusable SVG symbols in `icons.svg`, with no icon p
 
 ## Scope and checks
 
-Home displays one app card at a time. Pass, like, and superlike advance to the next app; undo reopens the app whose decision was undone. Browser lists every app, and selecting one opens its Home card. Likes lists each liked or superliked app once and labels superlikes separately. A later pass removes an app from Likes, and undo restores its previous reaction. The bottom badge shows the actual saved count.
+Home displays one app card at a time. Pass and like advance to the next app; undo reopens the app whose decision was undone. Superlike saves the app and opens its website in a new tab. Share opens the app’s GitHub repository in a new tab. These two controls keep the same card selected; Superlike is disabled when there is no public website URL. Browser lists every app, and selecting one opens its Home card. Likes lists each liked or superliked app once and labels superlikes separately. A later pass removes an app from Likes, and undo restores its previous reaction. The bottom badge shows the actual saved count.
 
 The chat icon opens Contact; Profile displays Nicholas Bennett’s name and the same email, GitHub, and LinkedIn links. Project cards use the captured homepage images, and Browser and Likes use the same images as thumbnails. Dancefloor Bass Analyzer has no public website URL and displays a labeled fallback.
 
-Reactions stay available while navigating between views and reset on reload. Share uses the system share sheet or copies the local Home address. A local address works only where the preview server is reachable.
+Reactions stay available while navigating between views and reset on reload. External project links open with `noopener noreferrer`.
 
 ## Project screenshots
 
@@ -61,8 +61,8 @@ To refresh just one project, pass its slug or GitHub repository name: `npm run s
 
 ## Validation
 
-Run `npm test` for app-specific reaction history and undo, navigation, sharing, contact links, React-rendered view/SVG checks, and screenshot file checks.
+Run `npm test` for app-specific reaction history and undo, navigation, external project links, contact links, React-rendered view/SVG checks, and screenshot file checks.
 
-With the dev server running, use `TEST_URL=http://127.0.0.1:5173 npm run test:e2e` (adjust the URL to the server’s printed address). This uses Playwright to check all five views, all project rows, like/superlike/pass/undo behavior, contact and profile information, browser Back, direct links, responsive layout, and screenshot dimensions. It also writes visual QA images under `/private/tmp/`.
+With the dev server running, use `TEST_URL=http://127.0.0.1:5173 npm run test:e2e` (adjust the URL to the server’s printed address). This uses Playwright to check all five views, all project rows and years, like/superlike/pass/undo behavior, new-tab website/GitHub destinations, the missing-website state, contact and profile information, browser Back, direct links, responsive layout, and screenshot dimensions. External destinations are stubbed during this test. It also writes visual QA images under `/private/tmp/`.
 
 The production build, unit/render tests, and Playwright checks pass. Browser checks use Chromium mobile emulation; physical iPhone Safari has not been tested.

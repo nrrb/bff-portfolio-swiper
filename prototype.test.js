@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { createServer } from 'vite';
-import { initialState, reactionReducer, appReactions, shareProfile } from './src/actions.js';
+import { initialState, reactionReducer, appReactions } from './src/actions.js';
 import { apps, owner } from './src/data.js';
 import { views, viewFromHash, currentView, subscribeToNavigation } from './src/navigation.js';
 import { projectId } from './src/project-id.js';
@@ -21,8 +21,8 @@ const react = (state, type, appId, nextAppId) => reactionReducer(state, { type, 
 
 test('reactions belong to individual apps and undo reopens the affected app', () => {
   const liked = react(initialState, 'like', 'first', 'second');
-  let state = react(liked, 'superlike', 'second', 'third');
-  assert.equal(state.currentAppId, 'third');
+  let state = react(liked, 'superlike', 'second', 'second');
+  assert.equal(state.currentAppId, 'second');
   assert.deepEqual(appReactions(state.history), { first: 'like', second: 'superlike' });
   assert.deepEqual(liked.history, [{ appId: 'first', type: 'like' }]);
   assert.deepEqual(initialState.history, []);
@@ -47,13 +47,12 @@ test('repeat reactions update one app, pass removes its like, and undo restores 
   assert.deepEqual(appReactions(state.history), { first: 'superlike' });
 });
 
-test('opening an app or updating share status preserves likes', () => {
+test('opening an app preserves likes', () => {
   const state = react(initialState, 'like', 'first');
   const opened = reactionReducer(state, { type: 'select', appId: 'second' });
-  const updated = reactionReducer(opened, { type: 'status', message: 'Share canceled' });
-  assert.deepEqual(appReactions(updated.history), { first: 'like' });
-  assert.equal(updated.currentAppId, 'second');
-  assert.equal(updated.status, 'Share canceled');
+  assert.deepEqual(appReactions(opened.history), { first: 'like' });
+  assert.equal(opened.currentAppId, 'second');
+  assert.equal(opened.status, state.status);
 });
 
 test('navigation resolves all five links and falls back to Home', () => {
@@ -84,25 +83,6 @@ test('navigation subscribes to browser history changes and cleans up', () => {
   }
 });
 
-const shareData = { title: 'BFF', url: 'http://localhost:5173/#home' };
-test('share uses the native share sheet or clipboard fallback', async () => {
-  let received;
-  assert.equal(await shareProfile(shareData, { share: async data => { received = data; } }), 'Share dialog completed');
-  assert.deepEqual(received, shareData);
-  let copied;
-  const message = await shareProfile(shareData, { clipboard: { writeText: async text => { copied = text; } } });
-  assert.equal(copied, shareData.url);
-  assert.match(message, /copied/);
-});
-
-test('share handles native cancellation, clipboard errors, and missing APIs', async () => {
-  const canceled = await shareProfile(shareData, { share: async () => { throw Object.assign(new Error(), { name: 'AbortError' }); } });
-  assert.equal(canceled, 'Share canceled');
-  const denied = await shareProfile(shareData, { clipboard: { writeText: async () => { throw new Error('denied'); } } });
-  assert.match(denied, /Could not share/);
-  assert.match(await shareProfile(shareData, {}), /Could not share/);
-});
-
 test('React renders five views, the five action controls, and correct navigation links', async () => {
   const html = renderToStaticMarkup(React.createElement(components.default));
   const svg = await readFile(new URL('./icons.svg', import.meta.url), 'utf8');
@@ -119,7 +99,16 @@ test('React renders five views, the five action controls, and correct navigation
   assert.equal(sections.filter(section => !section.includes('hidden')).length, 1);
   assert.ok(sections.find(section => section.includes('view-home') && !section.includes('hidden')));
   const home = html.match(/<section id="view-home"[\s\S]*?<\/section>/)[0];
-  assert.doesNotMatch(home, /<a\b/, 'App cards should not contain Visit project or Source links');
+  const copy = home.match(/<div class="profile-copy">[\s\S]*?<\/div>/)[0];
+  assert.doesNotMatch(copy, /<a\b/, 'App text should not contain Visit project or Source links');
+  const externalControls = [...home.matchAll(/<a\b[^>]*>/g)].map(match => match[0]);
+  assert.equal(externalControls.length, 2);
+  for (const control of externalControls) {
+    assert.match(control, /target="_blank"/);
+    assert.match(control, /rel="noopener noreferrer"/);
+  }
+  assert.ok(externalControls.find(control => control.includes('aria-label="Superlike"') && control.includes(`href="${apps[0].websiteUrl}"`)));
+  assert.ok(externalControls.find(control => control.includes('aria-label="Share"') && control.includes(`href="${apps[0].githubUrl}"`)));
   assert.match(html, /aria-current="page"/);
   assert.doesNotMatch(html, /<dialog|99\+/);
   assert.match(html, /Nicholas Bennett/);
