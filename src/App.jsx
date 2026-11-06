@@ -154,6 +154,7 @@ export default function App() {
             aria-label={item.label} title={item.label} aria-current={item.id === view ? 'page' : undefined}>
             <Icon name={item.icon} />
             {item.id === 'likes' && <span className="badge">99+</span>}
+            {item.id === 'chats' && matchedApps.length > 0 && <span className="chat-dot" aria-hidden="true" />}
           </a>
         ))}
       </nav>

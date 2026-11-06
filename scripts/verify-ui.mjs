@@ -25,6 +25,7 @@ try {
   await page.getByRole('link', { name: 'Chats', exact: true }).click();
   await page.locator('#view-chats').waitFor({ state: 'visible' });
   assert.equal(await page.locator('.conversation-row').count(), 0);
+  assert.equal(await page.locator('.nav-button[aria-label="Chats"] .chat-dot').count(), 0);
   assert.match(await page.locator('#view-chats').innerText(), /Your next conversation starts with a like/);
   const openExternalControl = async (label, url) => {
     const opened = context.waitForEvent('page');
@@ -71,6 +72,7 @@ try {
     await page.getByRole('link', { name: 'Chats', exact: true }).click();
     await page.locator('#view-chats').waitFor({ state: 'visible' });
     assert.equal(await page.locator('.conversation-row').count(), matches);
+    assert.equal(await page.locator('.nav-button[aria-label="Chats"] .chat-dot').count(), matches > 0 ? 1 : 0);
   };
   await openExternalControl('Share', projects[0].githubUrl);
   await page.getByRole('button', { name: 'Like', exact: true }).click();
