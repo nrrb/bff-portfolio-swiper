@@ -40,6 +40,8 @@ The prototype uses original, reusable SVG symbols in `icons.svg`, with no icon p
 
 ## Scope and checks
 
+Project `description` fields are short, playful dating bios for the cards. Detailed project context remains in the existing `problem`, `role`, and related fields where provided.
+
 Home displays one app card at a time. Pass and like advance to the next app; undo reopens the app whose decision was undone. Superlike saves the app and opens its website in a new tab. Share opens the app’s GitHub repository in a new tab. These two controls keep the same card selected; Superlike is disabled when there is no public website URL. Browser lists every app, and selecting one opens its Home card. Likes lists each liked or superliked app once and labels superlikes separately. A later pass removes an app from Likes, and undo restores its previous reaction. The bottom badge shows the actual saved count.
 
 The chat icon opens Contact; Profile displays Nicholas Bennett’s name and the same email, GitHub, and LinkedIn links. Project cards use the captured homepage images, and Browser and Likes use the same images as thumbnails. Dancefloor Bass Analyzer has no public website URL and displays a labeled fallback.
